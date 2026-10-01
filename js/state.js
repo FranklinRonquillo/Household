@@ -7,8 +7,8 @@ const INITIAL_STATE = {
   currentMonth: 'Septiembre 2026',
 
   // Couple Profile & Incomes
-  userA: { id: 'person_a', name: 'Tú (Franklin)', income: 3500000, color: '#f472b6' },
-  userB: { id: 'person_b', name: 'Ella', income: 2500000, color: '#8b5cf6' },
+  userA: { id: 'person_a', name: 'Fran', income: 3500000, color: '#f472b6' },
+  userB: { id: 'person_b', name: 'Yox', income: 2500000, color: '#8b5cf6' },
 
   // Motivation & Gamification
   quote: "Cada peso que cuidamos nos acerca a lo que queremos. ❤️",
@@ -34,8 +34,8 @@ const INITIAL_STATE = {
     { id: 3, categoria: 'Servicios', descripcion: 'Luz y agua EPM', monto: 210000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-08' },
     { id: 4, categoria: 'Transporte', descripcion: 'Gasolina carro', monto: 140000, pagado_por: 'person_b', tipo_gasto: 'compartido', fecha: '2026-09-12' },
     { id: 5, categoria: 'Comida fuera', descripcion: 'Cena de aniversario', monto: 120000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-15' },
-    { id: 6, categoria: 'Gastos personales', descripcion: 'Ropa personal Franklin', monto: 150000, pagado_por: 'person_a', tipo_gasto: 'personal_a', fecha: '2026-09-18' },
-    { id: 7, categoria: 'Gastos personales', descripcion: 'Maquillaje y cuidado', monto: 110000, pagado_por: 'person_b', tipo_gasto: 'personal_b', fecha: '2026-09-20' }
+    { id: 6, categoria: 'Gastos personales', descripcion: 'Ropa personal Fran', monto: 150000, pagado_por: 'person_a', tipo_gasto: 'personal_a', fecha: '2026-09-18' },
+    { id: 7, categoria: 'Gastos personales', descripcion: 'Maquillaje y cuidado Yox', monto: 110000, pagado_por: 'person_b', tipo_gasto: 'personal_b', fecha: '2026-09-20' }
   ],
 
   // Smart Market List
@@ -116,8 +116,9 @@ const INITIAL_STATE = {
 // Global reactive State Proxy
 class StateManager {
   constructor() {
-    const savedState = localStorage.getItem('household_state');
-    this.data = savedState ? JSON.parse(savedState) : INITIAL_STATE;
+    // Reset state to update profiles cleanly
+    this.data = INITIAL_STATE;
+    localStorage.setItem('household_state', JSON.stringify(this.data));
     this.listeners = [];
   }
 

@@ -28,7 +28,7 @@ function renderDashboardModule(appState) {
       <div class="glass-card split-card" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
           <span class="badge badge-purple">✨ Frase de Hoy</span>
-          <h3 style="margin-top: 0.5rem; font-size: 1.15rem; color: #ffffff;">"${quote}"</h3>
+          <h3 style="margin-top: 0.5rem; font-size: 1.15rem; color: var(--text-main);">"${quote}"</h3>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
           <div style="text-align: right;">
@@ -53,7 +53,7 @@ function renderDashboardModule(appState) {
         <div class="glass-card stat-widget">
           <span class="stat-label">📥 Ingresos Totales</span>
           <span class="stat-value income">${formatCurrency(totalIncome)}</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Tú: ${formatCurrency(userA.income)} · Ella: ${formatCurrency(userB.income)}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Fran: ${formatCurrency(userA.income)} · Yox: ${formatCurrency(userB.income)}</span>
         </div>
 
         <div class="glass-card stat-widget">
@@ -71,7 +71,7 @@ function renderDashboardModule(appState) {
 
       <!-- Proportional Split & Recent Expenses Grid -->
       <div class="dashboard-sections-grid">
-        <!-- Left: 50/50 Proportional Split Widget -->
+        <!-- Left: Proportional Split Widget -->
         <div class="glass-card">
           <div class="glass-card-header">
             <span class="glass-card-title">⚖️ Aportes Proporcionales (Según Sueldos)</span>
@@ -79,38 +79,38 @@ function renderDashboardModule(appState) {
           </div>
 
           <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
-            Los gastos compartidos no son 50/50 fijos. Se dividen según los ingresos de cada uno este mes:
+            Los gastos compartidos se dividen según los ingresos reales de cada uno este mes:
           </p>
 
           <div class="split-users-comparison">
             <div class="split-user-box">
-              <div class="split-user-name">👨🏻 ${userA.name}</div>
+              <div class="split-user-name">👨🏻 Fran</div>
               <div class="split-user-income">${formatCurrency(userA.income)}</div>
               <div class="split-user-share">Aporta el ${formatPercent(split.percentA)}</div>
             </div>
             <div style="align-self: center; font-size: 1.2rem; color: var(--text-muted);">vs</div>
             <div class="split-user-box">
-              <div class="split-user-name">👩🏻 ${userB.name}</div>
+              <div class="split-user-name">👩🏻 Yox</div>
               <div class="split-user-income">${formatCurrency(userB.income)}</div>
               <div class="split-user-share">Aporta el ${formatPercent(split.percentB)}</div>
             </div>
           </div>
 
-          <div style="background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); margin-top: 1rem;">
+          <div style="background: var(--bg-glass); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); margin-top: 1rem;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
               <span>Total Gastos Compartidos:</span>
-              <strong style="color: #ffffff;">${formatCurrency(split.totalShared)}</strong>
+              <strong style="color: var(--text-main);">${formatCurrency(split.totalShared)}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
-              <span>Tú has pagado: ${formatCurrency(split.paidA)} (te corresponde ${formatCurrency(split.dueA)})</span>
+              <span>Fran ha pagado: ${formatCurrency(split.paidA)} (le corresponde ${formatCurrency(split.dueA)})</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
-              <span>Ella ha pagado: ${formatCurrency(split.paidB)} (le corresponde ${formatCurrency(split.dueB)})</span>
+              <span>Yox ha pagado: ${formatCurrency(split.paidB)} (le corresponde ${formatCurrency(split.dueB)})</span>
             </div>
             <hr style="border-color: var(--border-glass); margin-bottom: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--accent-gold); font-weight: 700; font-size: 0.95rem;">
               <span>🤝 Para quedar iguales:</span>
-              <span>${split.debtorName === 'Empatados' ? '¡Están totalmente al día!' : `${split.debtorName} debe aportar ${formatCurrency(split.settlementAmount)}`}</span>
+              <span>${split.debtorName === 'Empatados' ? '¡Están totalmente al día!' : `${split.debtorName === 'Tú' ? 'Fran' : 'Yox'} debe aportar ${formatCurrency(split.settlementAmount)}`}</span>
             </div>
           </div>
         </div>
@@ -124,10 +124,10 @@ function renderDashboardModule(appState) {
 
           <div style="display: flex; flex-direction: column; gap: 0.75rem;">
             ${expenses.slice(0, 5).map(item => `
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.02); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.8rem; background: var(--bg-glass); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
                 <div>
                   <div style="font-weight: 600; font-size: 0.875rem;">${item.descripcion}</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">${item.categoria} · Pagó: ${item.pagado_por === 'person_a' ? 'Tú' : 'Ella'}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${item.categoria} · Pagó: ${item.pagado_por === 'person_a' ? 'Fran' : 'Yox'}</div>
                 </div>
                 <div style="font-weight: 700; color: var(--expense-color); font-size: 0.9rem;">
                   -${formatCurrency(item.monto)}

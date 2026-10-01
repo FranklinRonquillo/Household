@@ -34,7 +34,7 @@ function renderExpensesModule(appState) {
                 <span style="font-weight: 600; font-size: 0.95rem;">${catName}</span>
                 <span class="badge ${sem.class}">${sem.label}</span>
               </div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">
+              <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">
                 ${formatCurrency(spent)} <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">/ ${formatCurrency(limit)}</span>
               </div>
               <div class="progress-bar-container">
@@ -62,13 +62,13 @@ function renderExpensesModule(appState) {
             </thead>
             <tbody>
               ${expenses.map(item => `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                <tr style="border-bottom: 1px solid var(--border-glass);">
                   <td style="padding: 0.75rem; color: var(--text-muted);">${item.fecha}</td>
                   <td style="padding: 0.75rem; font-weight: 600;">${item.descripcion}</td>
                   <td style="padding: 0.75rem;"><span class="badge badge-purple">${item.categoria}</span></td>
-                  <td style="padding: 0.75rem;">${item.pagado_por === 'person_a' ? '👨🏻 Tú' : '👩🏻 Ella'}</td>
+                  <td style="padding: 0.75rem;">${item.pagado_por === 'person_a' ? '👨🏻 Fran' : '👩🏻 Yox'}</td>
                   <td style="padding: 0.75rem; text-align: center;">
-                    ${item.tipo_gasto === 'compartido' ? '<span class="badge badge-success">50/50 Compartido</span>' : '<span class="badge badge-warning">Personal</span>'}
+                    ${item.tipo_gasto === 'compartido' ? '<span class="badge badge-success">Compartido</span>' : '<span class="badge badge-warning">Personal</span>'}
                   </td>
                   <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: var(--expense-color);">
                     -${formatCurrency(item.monto)}
