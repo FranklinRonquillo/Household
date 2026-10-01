@@ -200,6 +200,49 @@
   width: 100%;
 }
 
+/* Mobile Bottom Navigation Bar */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-glass);
+  padding: 0.5rem 0.25rem;
+  z-index: 9999;
+  justify-content: space-around;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex: 1;
+  text-align: center;
+}
+
+.mobile-nav-item:hover, .mobile-nav-item.active {
+  color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.mobile-nav-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
 /* Mobile Responsiveness Overrides */
 @media (max-width: 1024px) {
   .dashboard-sections-grid {
@@ -209,13 +252,13 @@
 
 @media (max-width: 768px) {
   .sidebar {
-    display: none;
+    display: none !important;
   }
   .main-content {
-    margin-left: 0;
-    padding: 1rem;
-    padding-bottom: 6rem;
-    width: 100%;
+    margin-left: 0 !important;
+    padding: 1rem !important;
+    padding-bottom: 6.5rem !important;
+    width: 100% !important;
   }
   .top-header {
     margin-bottom: 1.25rem;
@@ -229,41 +272,6 @@
     gap: 1rem;
   }
   .mobile-nav {
-    display: flex;
+    display: flex !important;
   }
-}
-
-/* Mobile Bottom Navigation Bar */
-.mobile-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--sidebar-bg);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border-glass);
-  padding: 0.5rem;
-  z-index: 900;
-  justify-content: space-around;
-}
-
-.mobile-nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  padding: 0.35rem 0.5rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-.mobile-nav-item.active {
-  color: var(--primary);
-}
-
-.mobile-nav-icon {
-  font-size: 1.25rem;
 }
