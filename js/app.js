@@ -95,6 +95,20 @@ function updateActiveNavStyles(activeTab) {
   });
 }
 
+const HOUSEHOLD_JOINT_CATEGORIES = ['Arriendo', 'Servicios', 'Mercado', 'Comida fuera', 'Aseo', 'Internet/celular', 'Entretenimiento'];
+
+function onCategorySelectChange(catValue) {
+  const payerSelect = document.getElementById('expense-payer-select');
+  const tipoSelect = document.getElementById('expense-tipo-select');
+
+  if (HOUSEHOLD_JOINT_CATEGORIES.includes(catValue)) {
+    if (payerSelect) payerSelect.value = 'casa';
+    if (tipoSelect) tipoSelect.value = 'compartido';
+  } else if (catValue === 'Gastos personales') {
+    if (payerSelect && payerSelect.value === 'casa') payerSelect.value = 'person_a';
+  }
+}
+
 // Global modal form submit handler for registering new expense
 function handleNewExpenseSubmit(event) {
   event.preventDefault();

@@ -127,7 +127,7 @@ function renderDashboardModule(appState) {
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.8rem; background: var(--bg-glass); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
                 <div>
                   <div style="font-weight: 600; font-size: 0.875rem;">${item.descripcion}</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">${item.categoria} · Pagó: ${item.pagado_por === 'person_a' ? 'Fran' : 'Yox'}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${item.categoria} · Pagó: ${item.pagado_por === 'person_a' ? 'Fran' : item.pagado_por === 'person_b' ? 'Yox' : 'Casa'}</div>
                 </div>
                 <div style="font-weight: 700; color: var(--expense-color); font-size: 0.9rem;">
                   -${formatCurrency(item.monto)}

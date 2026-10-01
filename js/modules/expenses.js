@@ -66,7 +66,7 @@ function renderExpensesModule(appState) {
                   <td style="padding: 0.75rem; color: var(--text-muted); text-overflow: ellipsis;">${item.fecha}</td>
                   <td style="padding: 0.75rem; font-weight: 600;">${item.descripcion}</td>
                   <td style="padding: 0.75rem;"><span class="badge badge-purple">${item.categoria}</span></td>
-                  <td style="padding: 0.75rem;">${item.pagado_por === 'person_a' ? '👨🏻 Fran' : '👩🏻 Yox'}</td>
+                  <td style="padding: 0.75rem;">${item.pagado_por === 'person_a' ? '👨🏻 Fran' : item.pagado_por === 'person_b' ? '👩🏻 Yox' : '🏡 Casa'}</td>
                   <td style="padding: 0.75rem; text-align: center;">
                     ${item.tipo_gasto === 'compartido' ? '<span class="badge badge-success">Compartido</span>' : '<span class="badge badge-warning">Personal</span>'}
                   </td>

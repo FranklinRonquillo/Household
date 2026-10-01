@@ -46,6 +46,9 @@ function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
         paidA += amount;
       } else if (item.pagado_por === 'person_b') {
         paidB += amount;
+      } else if (item.pagado_por === 'casa' || !item.pagado_por) {
+        paidA += amount * ratioA;
+        paidB += amount * ratioB;
       }
     }
   });
