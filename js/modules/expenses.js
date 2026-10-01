@@ -13,10 +13,10 @@ function renderExpensesModule(appState) {
 
   return `
     <div class="fade-in">
-      <div class="glass-card-header" style="margin-bottom: 1.5rem;">
-        <div>
-          <h2>💸 Control de Gastos y Presupuestos</h2>
-          <p style="color: var(--text-muted); font-size: 0.875rem;">Registren sus compras y verifiquen los límites de cada categoría</p>
+      <div class="glass-card-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div style="flex: 1; min-width: 220px;">
+          <h2 style="font-size: 1.35rem; word-break: break-word;">💸 Control de Gastos y Presupuestos</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Registren sus compras y verifiquen los límites de cada categoría</p>
         </div>
         <button class="btn btn-primary" onclick="openExpenseModal()">+ Registrar Gasto</button>
       </div>
@@ -30,11 +30,11 @@ function renderExpensesModule(appState) {
           const sem = getBudgetSemaphor(spent, limit);
           return `
             <div class="glass-card">
-              <div class="glass-card-header" style="margin-bottom: 0.5rem;">
-                <span style="font-weight: 600; font-size: 0.95rem;">${catName}</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">${catName}</span>
                 <span class="badge ${sem.class}">${sem.label}</span>
               </div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">
+              <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; word-break: break-all;">
                 ${formatCurrency(spent)} <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">/ ${formatCurrency(limit)}</span>
               </div>
               <div class="progress-bar-container">
@@ -48,8 +48,8 @@ function renderExpensesModule(appState) {
       <!-- Expense History Table -->
       <div class="glass-card">
         <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">🧾 Historial de Gastos del Mes</h3>
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+          <table style="width: 100%; min-width: 500px; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
             <thead>
               <tr style="border-bottom: 1px solid var(--border-glass); color: var(--text-muted);">
                 <th style="padding: 0.75rem;">Fecha</th>
@@ -63,7 +63,7 @@ function renderExpensesModule(appState) {
             <tbody>
               ${expenses.map(item => `
                 <tr style="border-bottom: 1px solid var(--border-glass);">
-                  <td style="padding: 0.75rem; color: var(--text-muted);">${item.fecha}</td>
+                  <td style="padding: 0.75rem; color: var(--text-muted); text-overflow: ellipsis;">${item.fecha}</td>
                   <td style="padding: 0.75rem; font-weight: 600;">${item.descripcion}</td>
                   <td style="padding: 0.75rem;"><span class="badge badge-purple">${item.categoria}</span></td>
                   <td style="padding: 0.75rem;">${item.pagado_por === 'person_a' ? '👨🏻 Fran' : '👩🏻 Yox'}</td>

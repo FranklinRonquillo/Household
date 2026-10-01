@@ -14,6 +14,7 @@
   box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
+  max-width: 100%;
 }
 
 .glass-card:hover {
@@ -28,6 +29,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .glass-card-title {
@@ -37,6 +40,7 @@
   align-items: center;
   gap: 0.5rem;
   color: var(--text-main);
+  word-break: break-word;
 }
 
 /* Stat Widgets */
@@ -60,6 +64,7 @@
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.03em;
+  word-break: break-word;
 }
 
 .stat-value.income { color: var(--income-color); }
@@ -81,6 +86,7 @@
   border: 1px solid transparent;
   transition: all var(--transition-fast);
   user-select: none;
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -133,6 +139,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .theme-toggle-btn:hover {
@@ -149,6 +156,8 @@
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 600;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .badge-success {
@@ -218,6 +227,7 @@
   color: var(--text-main);
   font-size: 0.9rem;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
 }
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
