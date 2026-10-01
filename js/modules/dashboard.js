@@ -79,7 +79,7 @@ function renderDashboardModule(appState) {
           </div>
 
           <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
-            Los gastos compartidos se dividen según los ingresos reales de cada uno este mes:
+            Solo se consideran los <strong>gastos del hogar</strong>. Los gastos particulares de cada uno son independientes y no afectan esta equivalencia:
           </p>
 
           <div class="split-users-comparison">
