@@ -14,7 +14,7 @@
 <body>
 
   <div class="app-container">
-    <!-- Desktop Sidebar Navigation -->
+    <!-- Desktop Sidebar Navigation (Unified 5 Main Views) -->
     <aside class="sidebar">
       <div class="brand-header">
         <div class="brand-logo">🏠</div>
@@ -31,27 +31,19 @@
         </li>
         <li class="nav-item" data-tab="gastos">
           <span class="nav-icon">💸</span>
-          <span>Gastos</span>
+          <span>Gastos y Deudas</span>
         </li>
         <li class="nav-item" data-tab="mercado">
           <span class="nav-icon">🛒</span>
-          <span>Mercado Inteligente</span>
+          <span>Mercado</span>
         </li>
         <li class="nav-item" data-tab="ahorros">
           <span class="nav-icon">🏦</span>
-          <span>Ahorros y Metas</span>
-        </li>
-        <li class="nav-item" data-tab="calendario">
-          <span class="nav-icon">📆</span>
-          <span>Calendario y Deudas</span>
+          <span>Metas y Logros</span>
         </li>
         <li class="nav-item" data-tab="memorias">
           <span class="nav-icon">📸</span>
-          <span>Memorias del Hogar</span>
-        </li>
-        <li class="nav-item" data-tab="logros">
-          <span class="nav-icon">🏆</span>
-          <span>Logros de Pareja</span>
+          <span>Memorias</span>
         </li>
       </ul>
 
@@ -95,11 +87,11 @@
     </main>
   </div>
 
-  <!-- Mobile Bottom Navigation Bar -->
+  <!-- Mobile Bottom Navigation Bar (Unified 5 Main Views) -->
   <nav class="mobile-nav">
     <div class="mobile-nav-item active" data-tab="dashboard">
       <span class="mobile-nav-icon">🏠</span>
-      <span>Inicio</span>
+      <span>Casa</span>
     </div>
     <div class="mobile-nav-item" data-tab="gastos">
       <span class="mobile-nav-icon">💸</span>
@@ -194,7 +186,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Categoría</label>
-          <select name="categoria" class="form-select" id="expense-category-select" onchange="onCategorySelectChange(this.value)">
+          <select name="categoria" class="form-select">
             <option value="Arriendo">🏠 Arriendo</option>
             <option value="Servicios">💡 Servicios</option>
             <option value="Mercado">🛒 Mercado</option>
@@ -208,15 +200,14 @@
         </div>
         <div class="form-group">
           <label class="form-label">¿Quién pagó?</label>
-          <select name="pagado_por" class="form-select" id="expense-payer-select">
-            <option value="casa">🏡 Casa (Pago en conjunto)</option>
+          <select name="pagado_por" class="form-select">
             <option value="person_a">👨🏻 Fran</option>
             <option value="person_b">👩🏻 Yox</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Tipo de Gasto</label>
-          <select name="tipo_gasto" class="form-select" id="expense-tipo-select">
+          <select name="tipo_gasto" class="form-select">
             <option value="compartido">🤝 Compartido (Proporcional a ingresos)</option>
             <option value="personal_a">👤 Personal de Fran</option>
             <option value="personal_b">👤 Personal de Yox</option>

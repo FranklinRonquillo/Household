@@ -1,5 +1,5 @@
 /* ==========================================================================
-   HOUSEHOLD - Main Application Router & Controller
+   HOUSEHOLD - Main Application Router & Controller (5 Unified Views)
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -44,7 +44,7 @@ function renderApp(appState) {
   // Update navigation visual selection
   updateActiveNavStyles(appState.activeTab);
 
-  // Render appropriate view module
+  // Render appropriate view module (5 unified views)
   switch (appState.activeTab) {
     case 'dashboard':
       container.innerHTML = renderDashboardModule(appState);
@@ -58,14 +58,8 @@ function renderApp(appState) {
     case 'ahorros':
       container.innerHTML = renderSavingsModule(appState);
       break;
-    case 'calendario':
-      container.innerHTML = renderCalendarModule(appState);
-      break;
     case 'memorias':
       container.innerHTML = renderMemoriesModule(appState);
-      break;
-    case 'logros':
-      container.innerHTML = renderAchievementsModule(appState);
       break;
     default:
       container.innerHTML = renderDashboardModule(appState);
@@ -93,20 +87,6 @@ function updateActiveNavStyles(activeTab) {
       item.classList.remove('active');
     }
   });
-}
-
-const HOUSEHOLD_JOINT_CATEGORIES = ['Arriendo', 'Servicios', 'Mercado', 'Comida fuera', 'Aseo', 'Internet/celular', 'Entretenimiento'];
-
-function onCategorySelectChange(catValue) {
-  const payerSelect = document.getElementById('expense-payer-select');
-  const tipoSelect = document.getElementById('expense-tipo-select');
-
-  if (HOUSEHOLD_JOINT_CATEGORIES.includes(catValue)) {
-    if (payerSelect) payerSelect.value = 'casa';
-    if (tipoSelect) tipoSelect.value = 'compartido';
-  } else if (catValue === 'Gastos personales') {
-    if (payerSelect && payerSelect.value === 'casa') payerSelect.value = 'person_a';
-  }
 }
 
 // Global modal form submit handler for registering new expense
