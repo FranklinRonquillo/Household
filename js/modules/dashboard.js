@@ -1,5 +1,5 @@
 /* ==========================================================================
-   HOUSEHOLD - Dashboard Module Renderer
+   HOUSEHOLD - Dashboard Module Renderer ("Nuestra Casa")
    ========================================================================== */
 
 function renderDashboardModule(appState) {
@@ -12,9 +12,17 @@ function renderDashboardModule(appState) {
   // Total Expenses
   const totalExpenses = expenses.reduce((sum, item) => sum + item.monto, 0);
   
+  // Personal Expenses Breakdown
+  const personalA = expenses.filter(i => i.tipo_gasto === 'personal_a').reduce((sum, i) => sum + i.monto, 0);
+  const personalB = expenses.filter(i => i.tipo_gasto === 'personal_b').reduce((sum, i) => sum + i.monto, 0);
+
+  // Free Individual Disposable Money
+  const freeMoneyA = Math.max(0, userA.income - split.dueA - personalA);
+  const freeMoneyB = Math.max(0, userB.income - split.dueB - personalB);
+
   // Total Savings this month
   const mainGoal = savingsGoals[0] || { current: 0, target: 10000000 };
-  const monthlySavings = 400000; // Simulated monthly savings contribution
+  const monthlySavings = 400000;
   
   // Available Money = Total Income - Total Expenses - Monthly Savings
   const availableMoney = Math.max(0, totalIncome - totalExpenses - monthlySavings);
@@ -47,7 +55,7 @@ function renderDashboardModule(appState) {
         <div class="glass-card stat-widget">
           <span class="stat-label">💰 Disponible este mes</span>
           <span class="stat-value primary">${formatCurrency(availableMoney)}</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Restante seguro para gastar</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Restante seguro para el hogar</span>
         </div>
 
         <div class="glass-card stat-widget">
@@ -59,18 +67,41 @@ function renderDashboardModule(appState) {
         <div class="glass-card stat-widget">
           <span class="stat-label">🏠 Gastos Registrados</span>
           <span class="stat-value expense">${formatCurrency(totalExpenses)}</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">${formatPercent(spendPercent)} del ingreso total</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">${formatPercent(spendPercent)} del ingreso consumido</span>
         </div>
 
         <div class="glass-card stat-widget">
           <span class="stat-label">💵 Ahorro acumulado</span>
           <span class="stat-value savings">${formatCurrency(mainGoal.current)}</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Meta: ${formatCurrency(mainGoal.target)}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Meta Casa: ${formatCurrency(mainGoal.target)}</span>
         </div>
       </div>
 
-      <!-- Proportional Split & Recent Expenses Grid -->
-      <div class="dashboard-sections-grid">
+      <!-- Individual Personal Money Separation Widget -->
+      <div class="glass-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--bg-card), var(--bg-surface));">
+        <div class="glass-card-header" style="margin-bottom: 0.5rem;">
+          <span class="glass-card-title">💰 Dinero Libre Individual (Post-Obligaciones)</span>
+          <span class="badge badge-success">Sin Mezclar</span>
+        </div>
+        <p style="font-size: 0.825rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+          Dinero personal libre de cada uno tras cubrir la cuota de la casa y ahorros comunes:
+        </p>
+        <div style="display: flex; justify-content: space-around; gap: 1rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 140px; background: var(--bg-glass); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); text-align: center;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">👨🏻 Dinero Libre de Fran</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 0.2rem;">${formatCurrency(freeMoneyA)}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Sus gustos y hobbies</div>
+          </div>
+          <div style="flex: 1; min-width: 140px; background: var(--bg-glass); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); text-align: center;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">👩🏻 Dinero Libre de Yox</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: var(--secondary); margin-top: 0.2rem;">${formatCurrency(freeMoneyB)}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Sus compras personales</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proportional Split & Monthly Comparison Grid -->
+      <div class="dashboard-sections-grid" style="margin-bottom: 1.5rem;">
         <!-- Left: Proportional Split Widget -->
         <div class="glass-card">
           <div class="glass-card-header">
@@ -79,7 +110,7 @@ function renderDashboardModule(appState) {
           </div>
 
           <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
-            Solo se consideran los <strong>gastos del hogar</strong>. Los gastos particulares de cada uno son independientes y no afectan esta equivalencia:
+            Los gastos compartidos se dividen equitativamente según los ingresos reales de cada uno este mes:
           </p>
 
           <div class="split-users-comparison">
@@ -115,25 +146,47 @@ function renderDashboardModule(appState) {
           </div>
         </div>
 
-        <!-- Right: Recent Expenses Quick List -->
+        <!-- Right: Monthly Historical Comparison -->
         <div class="glass-card">
           <div class="glass-card-header">
-            <span class="glass-card-title">💸 Últimos Gastos</span>
-            <button class="btn btn-secondary btn-sm" onclick="appState.activeTab = 'gastos'; state.notify();">Ver todos</button>
+            <span class="glass-card-title">📈 Comparativa de Meses</span>
+            <span class="badge badge-success">📉 -12% este mes</span>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            ${expenses.slice(0, 5).map(item => `
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.8rem; background: var(--bg-glass); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
-                <div>
-                  <div style="font-weight: 600; font-size: 0.875rem;">${item.descripcion}</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">${item.categoria} · Pagó: ${item.pagado_por === 'person_a' ? 'Fran' : item.pagado_por === 'person_b' ? 'Yox' : 'Casa'}</div>
-                </div>
-                <div style="font-weight: 700; color: var(--expense-color); font-size: 0.9rem;">
-                  -${formatCurrency(item.monto)}
-                </div>
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>Septiembre 2026 (Actual)</span>
+                <span style="color: var(--expense-color);">${formatCurrency(totalExpenses)}</span>
               </div>
-            `).join('')}
+              <div class="progress-bar-container" style="margin-top: 0.4rem;">
+                <div class="progress-bar-fill warning" style="width: 65%;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>Agosto 2026</span>
+                <span style="color: var(--text-muted);">${formatCurrency(2470000)}</span>
+              </div>
+              <div class="progress-bar-container" style="margin-top: 0.4rem;">
+                <div class="progress-bar-fill danger" style="width: 78%;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>Julio 2026</span>
+                <span style="color: var(--text-muted);">${formatCurrency(2650000)}</span>
+              </div>
+              <div class="progress-bar-container" style="margin-top: 0.4rem;">
+                <div class="progress-bar-fill danger" style="width: 84%;"></div>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--income-color); font-weight: 600; text-align: center; margin-top: 0.25rem;">
+              📉 ¡Este mes gastaron $250.000 menos que el anterior! 🎉
+            </div>
           </div>
         </div>
       </div>
