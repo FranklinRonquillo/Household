@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Household — Nuestro Hogar Financiero</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/modules.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand-header">
+        <div class="brand-logo">🏠</div>
+        <div>
+          <div class="brand-title">Household</div>
+          <div class="brand-subtitle">Nuestro Hogar ❤️</div>
+        </div>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item active" data-tab="dashboard">
+          <span class="nav-icon">🏠</span>
+          <span>Nuestra Casa</span>
+        </li>
+        <li class="nav-item" data-tab="gastos">
+          <span class="nav-icon">💸</span>
+          <span>Gastos y 50/50</span>
+        </li>
+        <li class="nav-item" data-tab="mercado">
+          <span class="nav-icon">🛒</span>
+          <span>Mercado Inteligente</span>
+        </li>
+        <li class="nav-item" data-tab="ahorros">
+          <span class="nav-icon">🏦</span>
+          <span>Ahorros y Metas</span>
+        </li>
+        <li class="nav-item" data-tab="calendario">
+          <span class="nav-icon">📆</span>
+          <span>Calendario y Deudas</span>
+        </li>
+        <li class="nav-item" data-tab="memorias">
+          <span class="nav-icon">📸</span>
+          <span>Memorias del Hogar</span>
+        </li>
+        <li class="nav-item" data-tab="logros">
+          <span class="nav-icon">🏆</span>
+          <span>Logros de Pareja</span>
+        </li>
+      </ul>
+
+      <div class="sidebar-user">
+        <div class="user-avatars">
+          <div class="avatar avatar-a">T</div>
+          <div class="avatar avatar-b">E</div>
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">
+          Franklin & Ella
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Shell -->
+    <main class="main-content">
+      <!-- Top Bar Header -->
+      <header class="top-header">
+        <div class="header-welcome">
+          <h1>🏠 Nuestro Hogar</h1>
+          <div class="header-quote">Septiembre · 2026</div>
+        </div>
+
+        <div class="header-actions">
+          <div class="month-selector">
+            <span>📅 Septiembre 2026</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openExpenseModal()">
+            + Nuevo Gasto
+          </button>
+        </div>
+      </header>
+
+      <!-- Dynamic View Container (SPA) -->
+      <div id="main-view-container">
+        <!-- Injected via JavaScript -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-item active" data-tab="dashboard">
+      <span class="mobile-nav-icon">🏠</span>
+      <span>Inicio</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="gastos">
+      <span class="mobile-nav-icon">💸</span>
+      <span>Gastos</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="mercado">
+      <span class="mobile-nav-icon">🛒</span>
+      <span>Mercado</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="ahorros">
+      <span class="mobile-nav-icon">🏦</span>
+      <span>Metas</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="memorias">
+      <span class="mobile-nav-icon">📸</span>
+      <span>Memorias</span>
+    </div>
+  </nav>
+
+  <!-- Floating Quick Calculator Button & Widget -->
+  <button class="floating-calc-btn" onclick="toggleCalcWidget()" title="Calculadora Rápida">
+    🧮
+  </button>
+
+  <div class="calc-widget" id="calc-widget-popup">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Calculadora Rápida</span>
+      <button onclick="toggleCalcWidget()" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">✕</button>
+    </div>
+    <div class="calc-display" id="calc-display-screen">0</div>
+    <div class="calc-grid">
+      <button class="calc-btn op" onclick="calcInput('C')">C</button>
+      <button class="calc-btn op" onclick="calcInput('÷')">÷</button>
+      <button class="calc-btn op" onclick="calcInput('×')">×</button>
+      <button class="calc-btn op" onclick="calcInput('-')">-</button>
+      
+      <button class="calc-btn" onclick="calcInput('7')">7</button>
+      <button class="calc-btn" onclick="calcInput('8')">8</button>
+      <button class="calc-btn" onclick="calcInput('9')">9</button>
+      <button class="calc-btn op" onclick="calcInput('+')">+</button>
+      
+      <button class="calc-btn" onclick="calcInput('4')">4</button>
+      <button class="calc-btn" onclick="calcInput('5')">5</button>
+      <button class="calc-btn" onclick="calcInput('6')">6</button>
+      <button class="calc-btn op" onclick="calcInput('=')" style="grid-row: span 2; height: 100%;">=</button>
+      
+      <button class="calc-btn" onclick="calcInput('1')">1</button>
+      <button class="calc-btn" onclick="calcInput('2')">2</button>
+      <button class="calc-btn" onclick="calcInput('3')">3</button>
+      
+      <button class="calc-btn" onclick="calcInput('0')" style="grid-column: span 2;">0</button>
+      <button class="calc-btn" onclick="calcInput('.')">.</button>
+    </div>
+  </div>
+
+  <!-- Register Expense Modal -->
+  <div class="modal-overlay" id="modal-expense">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; color: #ffffff;">💸 Registrar Nuevo Gasto</h3>
+        <button class="modal-close" onclick="closeExpenseModal()">✕</button>
+      </div>
+      <form onsubmit="handleNewExpenseSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Descripción del gasto</label>
+          <input type="text" name="descripcion" class="form-input" placeholder="ej: Mercado semanal, Arriendo, Salida a cenar" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto (COP)</label>
+          <input type="number" name="monto" class="form-input" placeholder="ej: 150000" required min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select name="categoria" class="form-select">
+            <option value="Arriendo">🏠 Arriendo</option>
+            <option value="Servicios">💡 Servicios</option>
+            <option value="Mercado">🛒 Mercado</option>
+            <option value="Comida fuera">🍔 Comida fuera</option>
+            <option value="Transporte">🚌 Transporte</option>
+            <option value="Internet/celular">📱 Internet/celular</option>
+            <option value="Aseo">🧴 Aseo</option>
+            <option value="Entretenimiento">🎮 Entretenimiento</option>
+            <option value="Gastos personales">🩷 Gastos personales</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">¿Quién pagó?</label>
+          <select name="pagado_por" class="form-select">
+            <option value="person_a">👨🏻 Tú (Franklin)</option>
+            <option value="person_b">👩🏻 Tu Novia</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de Gasto</label>
+          <select name="tipo_gasto" class="form-select">
+            <option value="compartido">🤝 Compartido (Proporcional a ingresos)</option>
+            <option value="personal_a">👤 Personal de Franklin</option>
+            <option value="personal_b">👤 Personal de ella</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Gasto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/math.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/modules/dashboard.js"></script>
+  <script src="js/modules/expenses.js"></script>
+  <script src="js/modules/market.js"></script>
+  <script src="js/modules/savings.js"></script>
+  <script src="js/modules/calendar.js"></script>
+  <script src="js/modules/memories.js"></script>
+  <script src="js/modules/achievements.js"></script>
+  <script src="js/modules/calculator.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

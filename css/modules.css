@@ -1,0 +1,216 @@
+/* ==========================================================================
+   HOUSEHOLD - Module Specific Styles (Market, Savings, Memories, Proportional, Calc)
+   ========================================================================== */
+
+/* Proportional Split Card */
+.split-card {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(139, 92, 246, 0.08));
+  border: 1px solid var(--border-accent);
+}
+
+.split-users-comparison {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 0.85rem;
+  background: rgba(15, 17, 26, 0.5);
+  border-radius: var(--radius-md);
+}
+
+.split-user-box {
+  flex: 1;
+  text-align: center;
+}
+
+.split-user-name {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.split-user-income {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.split-user-share {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Market List Module */
+.market-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .market-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.market-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.market-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.market-item-row.completed {
+  opacity: 0.5;
+  text-decoration: line-through;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.market-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* Memories Photo Album Grid */
+.memories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.memory-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+}
+
+.memory-img-wrapper {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.memory-body {
+  padding: 1.25rem;
+}
+
+.memory-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.memory-date {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.memory-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Floating Quick Calculator Widget */
+.floating-calc-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 8px 25px var(--primary-glow);
+  cursor: pointer;
+  z-index: 800;
+  border: none;
+  transition: transform var(--transition-fast);
+}
+
+.floating-calc-btn:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.calc-widget {
+  position: fixed;
+  bottom: 6rem;
+  right: 2rem;
+  width: 300px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
+  z-index: 850;
+  display: none;
+}
+
+.calc-widget.active {
+  display: block;
+}
+
+.calc-display {
+  background: rgba(15, 17, 26, 0.9);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  text-align: right;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.calc-btn {
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.calc-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.calc-btn.op {
+  background: rgba(244, 114, 182, 0.2);
+  color: var(--primary);
+}
