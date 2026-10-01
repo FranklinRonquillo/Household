@@ -85,18 +85,19 @@ function renderExpensesModule(appState) {
           <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">🗓️ Fechas Clave de Pago del Mes</h3>
           <div style="display: flex; flex-direction: column; gap: 0.85rem;">
             ${calendarPayments.map(pay => `
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-                <div style="display: flex; align-items: center; gap: 0.85rem;">
-                  <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #ffffff;">
-                    Día ${pay.day}
-                  </div>
-                  <div>
-                    <div style="font-weight: 600; font-size: 0.95rem;">${pay.title}</div>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);">Monto est: ${formatCurrency(pay.amount)}</span>
-                  </div>
+              <div class="calendar-item-card">
+                <div class="calendar-day-badge">
+                  <span class="day-num">${String(pay.day).padStart(2, '0')}</span>
+                  <span class="day-label">DÍA</span>
                 </div>
-                <div>
-                  ${pay.status === 'paid' ? '<span class="badge badge-success">Pagado 🟢</span>' : '<span class="badge badge-warning">Pendiente 🟡</span>'}
+                <div class="calendar-item-info">
+                  <div class="calendar-item-title-row">
+                    <span class="calendar-item-title">${pay.title}</span>
+                    ${pay.status === 'paid' ? '<span class="badge badge-success">Pagado 🟢</span>' : '<span class="badge badge-warning">Pendiente 🟡</span>'}
+                  </div>
+                  <div class="calendar-item-amount">
+                    Monto est: <strong style="color: var(--text-main);">${formatCurrency(pay.amount)}</strong>
+                  </div>
                 </div>
               </div>
             `).join('')}
@@ -112,8 +113,8 @@ function renderExpensesModule(appState) {
           <div style="display: flex; flex-direction: column; gap: 0.85rem;">
             ${debts.map(debt => `
               <div style="padding: 0.85rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
-                  <span style="font-weight: 600; font-size: 0.9rem;">${debt.concept}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.3rem;">
+                  <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">${debt.concept}</span>
                   <span style="font-weight: 700; color: var(--expense-color);">${formatCurrency(debt.amount)}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
