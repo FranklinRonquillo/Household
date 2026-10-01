@@ -119,32 +119,53 @@
     </div>
   </nav>
 
-  <!-- Floating Quick Calculator Button & Widget -->
+  <!-- Floating Quick Calculator Button & Scientific Widget with Mini History -->
   <button class="floating-calc-btn" onclick="toggleCalcWidget()" title="Calculadora Rápida">
     🧮
   </button>
 
   <div class="calc-widget" id="calc-widget-popup">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Calculadora Rápida</span>
-      <button onclick="toggleCalcWidget()" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">✕</button>
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">Calculadora Rápida</span>
+      <button onclick="toggleCalcWidget()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem;">✕</button>
     </div>
-    <div class="calc-display" id="calc-display-screen">0</div>
+
+    <!-- Mini History Panel -->
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">
+      <span>📜 Mini Historial</span>
+      <button onclick="clearCalcHistory()" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.7rem;">Borrar</button>
+    </div>
+    <div class="calc-history-panel" id="calc-history-list">
+      <div style="color: var(--text-muted); font-size: 0.75rem; text-align: center; padding: 0.3rem;">Historial vacío</div>
+    </div>
+
+    <!-- Display Screen -->
+    <div class="calc-display-container">
+      <div class="calc-expr-line" id="calc-expr-screen"></div>
+      <div class="calc-result-line" id="calc-result-screen">0</div>
+    </div>
+
+    <!-- Keypad Grid -->
     <div class="calc-grid">
-      <button class="calc-btn op" onclick="calcInput('C')">C</button>
+      <button class="calc-btn action" onclick="calcInput('C')">C</button>
+      <button class="calc-btn action" onclick="calcInput('(')">(</button>
+      <button class="calc-btn action" onclick="calcInput(')')">)</button>
+      <button class="calc-btn action" onclick="calcInput('DEL')">⌫</button>
+      
       <button class="calc-btn op" onclick="calcInput('÷')">÷</button>
       <button class="calc-btn op" onclick="calcInput('×')">×</button>
       <button class="calc-btn op" onclick="calcInput('-')">-</button>
-      
+      <button class="calc-btn op" onclick="calcInput('+')">+</button>
+
       <button class="calc-btn" onclick="calcInput('7')">7</button>
       <button class="calc-btn" onclick="calcInput('8')">8</button>
       <button class="calc-btn" onclick="calcInput('9')">9</button>
-      <button class="calc-btn op" onclick="calcInput('+')">+</button>
+      <button class="calc-btn op" onclick="calcInput('%')">%</button>
       
       <button class="calc-btn" onclick="calcInput('4')">4</button>
       <button class="calc-btn" onclick="calcInput('5')">5</button>
       <button class="calc-btn" onclick="calcInput('6')">6</button>
-      <button class="calc-btn op" onclick="calcInput('=')" style="grid-row: span 2; height: 100%;">=</button>
+      <button class="calc-btn op" onclick="calcInput('=')" style="grid-row: span 2; height: 100%; font-size: 1.3rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #ffffff;">=</button>
       
       <button class="calc-btn" onclick="calcInput('1')">1</button>
       <button class="calc-btn" onclick="calcInput('2')">2</button>
