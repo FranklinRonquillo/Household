@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,7 @@
         </li>
         <li class="nav-item" data-tab="gastos">
           <span class="nav-icon">💸</span>
-          <span>Gastos y 50/50</span>
+          <span>Gastos</span>
         </li>
         <li class="nav-item" data-tab="mercado">
           <span class="nav-icon">🛒</span>
@@ -76,6 +76,9 @@
         </div>
 
         <div class="header-actions">
+          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()">
+            ☀️ Modo Claro
+          </button>
           <div class="month-selector">
             <span>📅 Septiembre 2026</span>
           </div>
@@ -156,7 +159,7 @@
   <div class="modal-overlay" id="modal-expense">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 style="font-size: 1.1rem; color: #ffffff;">💸 Registrar Nuevo Gasto</h3>
+        <h3 style="font-size: 1.1rem;">💸 Registrar Nuevo Gasto</h3>
         <button class="modal-close" onclick="closeExpenseModal()">✕</button>
       </div>
       <form onsubmit="handleNewExpenseSubmit(event)">

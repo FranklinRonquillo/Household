@@ -4,7 +4,7 @@
 
 /* Proportional Split Card */
 .split-card {
-  background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(139, 92, 246, 0.08));
+  background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
   border: 1px solid var(--border-accent);
 }
 
@@ -14,8 +14,9 @@
   gap: 1rem;
   margin: 1rem 0;
   padding: 0.85rem;
-  background: rgba(15, 17, 26, 0.5);
+  background: var(--bg-glass);
   border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
 }
 
 .split-user-box {
@@ -32,7 +33,7 @@
 .split-user-income {
   font-weight: 700;
   font-size: 1.1rem;
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .split-user-share {
@@ -65,7 +66,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-glass);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
@@ -103,7 +104,7 @@
   width: 100%;
   height: 200px;
   object-fit: cover;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,6 +119,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
+  color: var(--text-main);
 }
 
 .memory-date {
@@ -176,7 +178,7 @@
 }
 
 .calc-display {
-  background: rgba(15, 17, 26, 0.9);
+  background: var(--input-bg);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   padding: 0.75rem;
@@ -197,20 +199,20 @@
 
 .calc-btn {
   padding: 0.6rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-sm);
-  color: #ffffff;
+  color: var(--text-main);
   font-weight: 600;
   cursor: pointer;
   text-align: center;
 }
 
 .calc-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(150, 150, 150, 0.2);
 }
 
 .calc-btn.op {
-  background: rgba(244, 114, 182, 0.2);
+  background: var(--primary-glow);
   color: var(--primary);
 }

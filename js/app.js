@@ -3,6 +3,9 @@
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Theme (Dark / Light)
+  initTheme();
+
   // Subscribe to reactive state updates
   state.subscribe(renderApp);
 
@@ -12,6 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set up event listeners for navigation items
   setupNavigation();
 });
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('household_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeButtonUI(savedTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('household_theme', newTheme);
+  updateThemeButtonUI(newTheme);
+}
+
+function updateThemeButtonUI(theme) {
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) {
+    btn.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+  }
+}
 
 function renderApp(appState) {
   const container = document.getElementById('main-view-container');
