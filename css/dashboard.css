@@ -123,8 +123,8 @@
   border: 2px solid var(--bg-dark);
 }
 
-.avatar-a { background: linear-gradient(135deg, #ec4899, #f43f5e); margin-right: -8px; }
-.avatar-b { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+.avatar-a { background: linear-gradient(135deg, #3b82f6, #1d4ed8); margin-right: -8px; }
+.avatar-b { background: linear-gradient(135deg, #06b6d4, #0d9488); }
 
 /* Main Content Area */
 .main-content {
