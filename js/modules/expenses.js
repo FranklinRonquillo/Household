@@ -85,18 +85,19 @@ function renderExpensesModule(appState) {
           <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">🗓️ Fechas Clave de Pago del Mes</h3>
           <div style="display: flex; flex-direction: column; gap: 0.85rem;">
             ${calendarPayments.map(pay => `
-              <div class="calendar-item-card">
-                <div class="calendar-day-badge">
-                  <span class="day-num">${String(pay.day).padStart(2, '0')}</span>
-                  <span class="day-label">DÍA</span>
+              <div class="unified-list-card">
+                <div class="unified-card-badge">
+                  <span class="num">${String(pay.day).padStart(2, '0')}</span>
+                  <span class="label">DÍA</span>
                 </div>
-                <div class="calendar-item-info">
-                  <div class="calendar-item-title-row">
-                    <span class="calendar-item-title">${pay.title}</span>
+                <div class="unified-card-body">
+                  <div class="unified-card-top">
+                    <span class="title">${pay.title}</span>
                     ${pay.status === 'paid' ? '<span class="badge badge-success">Pagado 🟢</span>' : '<span class="badge badge-warning">Pendiente 🟡</span>'}
                   </div>
-                  <div class="calendar-item-amount">
-                    Monto est: <strong style="color: var(--text-main);">${formatCurrency(pay.amount)}</strong>
+                  <div class="unified-card-bottom">
+                    <span class="subtext">Fecha recurrente del mes</span>
+                    <span class="amount" style="color: var(--text-main);">${formatCurrency(pay.amount)}</span>
                   </div>
                 </div>
               </div>
@@ -104,7 +105,7 @@ function renderExpensesModule(appState) {
           </div>
         </div>
 
-        <!-- Pending Debts & Installments -->
+        <!-- Pending Debts & Installments (Unified Pattern) -->
         <div class="glass-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 style="font-size: 1.1rem;">🧾 Deudas Pendientes</h3>
@@ -112,14 +113,19 @@ function renderExpensesModule(appState) {
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.85rem;">
             ${debts.map(debt => `
-              <div style="padding: 0.85rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.3rem;">
-                  <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">${debt.concept}</span>
-                  <span style="font-weight: 700; color: var(--expense-color);">${formatCurrency(debt.amount)}</span>
+              <div class="unified-list-card">
+                <div class="unified-card-badge debt">
+                  <span class="num">🧾</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
-                  <span>Vence: ${debt.dueDate}</span>
-                  <span class="badge badge-danger">${debt.type}</span>
+                <div class="unified-card-body">
+                  <div class="unified-card-top">
+                    <span class="title">${debt.concept}</span>
+                    <span class="badge badge-danger">${debt.type}</span>
+                  </div>
+                  <div class="unified-card-bottom">
+                    <span class="subtext">Vence: ${debt.dueDate}</span>
+                    <span class="amount" style="color: var(--expense-color);">${formatCurrency(debt.amount)}</span>
+                  </div>
                 </div>
               </div>
             `).join('')}

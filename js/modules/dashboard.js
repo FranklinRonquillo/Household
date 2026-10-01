@@ -146,47 +146,31 @@ function renderDashboardModule(appState) {
           </div>
         </div>
 
-        <!-- Right: Monthly Historical Comparison -->
+        <!-- Right: Recent Expenses Quick List (Unified Card Pattern) -->
         <div class="glass-card">
           <div class="glass-card-header">
-            <span class="glass-card-title">📈 Comparativa de Meses</span>
-            <span class="badge badge-success">📉 -12% este mes</span>
+            <span class="glass-card-title">💸 Últimos Gastos</span>
+            <button class="btn btn-secondary btn-sm" onclick="appState.activeTab = 'gastos'; state.notify();">Ver todos</button>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
-                <span>Septiembre 2026 (Actual)</span>
-                <span style="color: var(--expense-color);">${formatCurrency(totalExpenses)}</span>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            ${expenses.slice(0, 4).map(item => `
+              <div class="unified-list-card">
+                <div class="unified-card-badge expense">
+                  <span class="num">💳</span>
+                </div>
+                <div class="unified-card-body">
+                  <div class="unified-card-top">
+                    <span class="title">${item.descripcion}</span>
+                    <span class="badge badge-purple">${item.categoria}</span>
+                  </div>
+                  <div class="unified-card-bottom">
+                    <span class="subtext">Pagó: ${item.pagado_por === 'person_a' ? 'Fran' : 'Yox'}</span>
+                    <span class="amount" style="color: var(--expense-color); font-weight: 700;">-${formatCurrency(item.monto)}</span>
+                  </div>
+                </div>
               </div>
-              <div class="progress-bar-container" style="margin-top: 0.4rem;">
-                <div class="progress-bar-fill warning" style="width: 65%;"></div>
-              </div>
-            </div>
-
-            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
-                <span>Agosto 2026</span>
-                <span style="color: var(--text-muted);">${formatCurrency(2470000)}</span>
-              </div>
-              <div class="progress-bar-container" style="margin-top: 0.4rem;">
-                <div class="progress-bar-fill danger" style="width: 78%;"></div>
-              </div>
-            </div>
-
-            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
-                <span>Julio 2026</span>
-                <span style="color: var(--text-muted);">${formatCurrency(2650000)}</span>
-              </div>
-              <div class="progress-bar-container" style="margin-top: 0.4rem;">
-                <div class="progress-bar-fill danger" style="width: 84%;"></div>
-              </div>
-            </div>
-
-            <div style="font-size: 0.8rem; color: var(--income-color); font-weight: 600; text-align: center; margin-top: 0.25rem;">
-              📉 ¡Este mes gastaron $250.000 menos que el anterior! 🎉
-            </div>
+            `).join('')}
           </div>
         </div>
       </div>
