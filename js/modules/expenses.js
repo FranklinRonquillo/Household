@@ -13,12 +13,11 @@ function renderExpensesModule(appState) {
 
   return `
     <div class="fade-in">
-      <div class="glass-card-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-        <div style="flex: 1; min-width: 220px;">
+      <div class="glass-card-header" style="margin-bottom: 1.5rem;">
+        <div>
           <h2 style="font-size: 1.35rem; word-break: break-word;">💸 Control de Gastos y Deudas</h2>
           <p style="color: var(--text-muted); font-size: 0.85rem;">Registren sus compras, verifiquen límites y controlen pagos pendientes</p>
         </div>
-        <button class="btn btn-primary" onclick="openExpenseModal()">+ Registrar Gasto</button>
       </div>
 
       <!-- Resumen Semanal de Nuestra Semana (Lunes a Domingo) -->
@@ -105,7 +104,7 @@ function renderExpensesModule(appState) {
           </div>
         </div>
 
-        <!-- Pending Debts & Installments (Unified Pattern) -->
+        <!-- Pending Debts & Installments -->
         <div class="glass-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 style="font-size: 1.1rem;">🧾 Deudas Pendientes</h3>
