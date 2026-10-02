@@ -41,6 +41,12 @@ function renderApp(appState) {
   const container = document.getElementById('main-view-container');
   if (!container) return;
 
+  // Show "+ Nuevo Gasto" button ONLY in the 'gastos' tab
+  const topAddBtn = document.getElementById('top-add-expense-btn');
+  if (topAddBtn) {
+    topAddBtn.style.display = appState.activeTab === 'gastos' ? 'inline-flex' : 'none';
+  }
+
   // Update navigation visual selection
   updateActiveNavStyles(appState.activeTab);
 
