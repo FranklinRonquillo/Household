@@ -12,7 +12,7 @@ function renderCalendarModule(appState) {
           <h2>📆 Calendario Financiero y Deudas</h2>
           <p style="color: var(--text-muted); font-size: 0.875rem;">Fechas clave de pago mensual y compromisos pendientes</p>
         </div>
-        <button class="btn btn-primary" onclick="addDebtPrompt()">+ Registrar Deuda / Cuota</button>
+        <button class="btn btn-primary" onclick="openDebtModal()">+ Registrar Deuda / Cuota</button>
       </div>
 
       <div class="dashboard-sections-grid">
@@ -63,16 +63,5 @@ function renderCalendarModule(appState) {
 }
 
 function addDebtPrompt() {
-  const concept = prompt('Concepto de la deuda o pago (ej: Cuota tarjeta):');
-  if (!concept) return;
-  const amountStr = prompt('Monto en COP:', '150000');
-  const amount = parseInt(amountStr) || 0;
-  
-  state.set(current => ({
-    ...current,
-    debts: [
-      ...current.debts,
-      { id: Date.now(), concept, amount, dueDate: '2026-10-15', type: 'Pendiente', status: 'pendiente' }
-    ]
-  }));
+  openDebtModal();
 }

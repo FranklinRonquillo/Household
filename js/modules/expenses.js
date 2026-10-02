@@ -108,7 +108,7 @@ function renderExpensesModule(appState) {
         <div class="glass-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 style="font-size: 1.1rem;">🧾 Deudas Pendientes</h3>
-            <button class="btn btn-secondary btn-sm" onclick="addDebtPrompt()">+ Agregar</button>
+            <button class="btn btn-secondary btn-sm" onclick="openDebtModal()">+ Agregar</button>
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.85rem;">
             ${debts.map(debt => `
@@ -168,11 +168,4 @@ function renderExpensesModule(appState) {
       </div>
     </div>
   `;
-}
-
-function openExpenseModal() {
-  document.getElementById('modal-expense').classList.add('active');
-}
-function closeExpenseModal() {
-  document.getElementById('modal-expense').classList.remove('active');
 }

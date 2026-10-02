@@ -12,7 +12,7 @@ function renderSavingsModule(appState) {
           <h2>🏦 Metas y Logros de Pareja</h2>
           <p style="color: var(--text-muted); font-size: 0.875rem;">Ahorros, sueños compartidos y trofeos alcanzados juntos</p>
         </div>
-        <button class="btn btn-primary" onclick="addSavingsGoalPrompt()">+ Nueva Meta</button>
+        <button class="btn btn-primary" onclick="openSavingsModal()">+ Nueva Meta</button>
       </div>
 
       <!-- Gamification Overview Row -->
@@ -100,16 +100,5 @@ function renderSavingsModule(appState) {
 }
 
 function addSavingsGoalPrompt() {
-  const title = prompt('Nombre de la meta (ej: Viaje a la playa ✈️):');
-  if (!title) return;
-  const targetStr = prompt('Monto objetivo en COP:', '5000000');
-  const target = parseInt(targetStr) || 1000000;
-  
-  state.set(current => ({
-    ...current,
-    savingsGoals: [
-      ...current.savingsGoals,
-      { id: Date.now(), title, current: 0, target, icon: '🎯' }
-    ]
-  }));
+  openSavingsModal();
 }
