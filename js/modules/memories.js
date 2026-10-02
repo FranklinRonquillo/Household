@@ -12,7 +12,7 @@ function renderMemoriesModule(appState) {
           <h2>📸 Memorias de Nuestra Casa</h2>
           <p style="color: var(--text-muted); font-size: 0.875rem;">El diario íntimo y álbum de fotos de nuestro hogar</p>
         </div>
-        <button class="btn btn-primary" onclick="addMemoryPrompt()">+ Guardar Nuevo Recuerdo</button>
+        <button class="btn btn-primary" onclick="openMemoryModal()">+ Guardar Nuevo Recuerdo</button>
       </div>
 
       <div class="memories-grid">
@@ -32,16 +32,5 @@ function renderMemoriesModule(appState) {
 }
 
 function addMemoryPrompt() {
-  const title = prompt('Título del recuerdo (ej: Primer viaje juntos ✈️):');
-  if (!title) return;
-  const desc = prompt('Pequeña descripción o dedicatoria:', 'Un día inolvidable guardado para siempre.');
-  const imageUrl = prompt('URL de la foto (o de la imagen subida):', 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=600&q=80');
-
-  state.set(current => ({
-    ...current,
-    memories: [
-      { id: Date.now(), title, date: 'Hoy', desc, image: imageUrl || 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=600&q=80' },
-      ...current.memories
-    ]
-  }));
+  openMemoryModal();
 }

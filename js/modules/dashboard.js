@@ -84,7 +84,7 @@ function renderDashboardModule(appState) {
           <span class="badge badge-success">Sin Mezclar</span>
         </div>
         <p style="font-size: 0.825rem; color: var(--text-muted); margin-bottom: 0.85rem;">
-          Dinero personal libre de cada uno tras cubrir la cuota de la casa y ahorros comunes:
+          Dinero personal libre de cada uno tras cubrir la cuota proporcional de la casa:
         </p>
         <div style="display: flex; justify-content: space-around; gap: 1rem; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 140px; background: var(--bg-glass); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); text-align: center;">
@@ -110,20 +110,20 @@ function renderDashboardModule(appState) {
           </div>
 
           <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
-            Los gastos compartidos se dividen equitativamente según los ingresos reales de cada uno este mes:
+            Los gastos compartidos se dividen según el % de salario de cada uno (Fran ${formatPercent(split.percentA)} / Yox ${formatPercent(split.percentB)}):
           </p>
 
           <div class="split-users-comparison">
             <div class="split-user-box">
               <div class="split-user-name">👨🏻 Fran</div>
               <div class="split-user-income">${formatCurrency(userA.income)}</div>
-              <div class="split-user-share">Aporta el ${formatPercent(split.percentA)}</div>
+              <div class="split-user-share">Cuota (${formatPercent(split.percentA)}): ${formatCurrency(split.dueA)}</div>
             </div>
             <div style="align-self: center; font-size: 1.2rem; color: var(--text-muted);">vs</div>
             <div class="split-user-box">
               <div class="split-user-name">👩🏻 Yox</div>
               <div class="split-user-income">${formatCurrency(userB.income)}</div>
-              <div class="split-user-share">Aporta el ${formatPercent(split.percentB)}</div>
+              <div class="split-user-share">Cuota (${formatPercent(split.percentB)}): ${formatCurrency(split.dueB)}</div>
             </div>
           </div>
 
@@ -132,45 +132,63 @@ function renderDashboardModule(appState) {
               <span>Total Gastos Compartidos:</span>
               <strong style="color: var(--text-main);">${formatCurrency(split.totalShared)}</strong>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
-              <span>Fran ha pagado: ${formatCurrency(split.paidA)} (le corresponde ${formatCurrency(split.dueA)})</span>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem; color: var(--text-muted);">
+              <span>Fran ha pagado del bolsillo: ${formatCurrency(split.paidA)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-muted);">
-              <span>Yox ha pagado: ${formatCurrency(split.paidB)} (le corresponde ${formatCurrency(split.dueB)})</span>
+              <span>Yox ha pagado del bolsillo: ${formatCurrency(split.paidB)}</span>
             </div>
             <hr style="border-color: var(--border-glass); margin-bottom: 0.75rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--accent-gold); font-weight: 700; font-size: 0.95rem;">
-              <span>🤝 Para quedar iguales:</span>
-              <span>${split.debtorName === 'Empatados' ? '¡Están totalmente al día!' : `${split.debtorName === 'Tú' ? 'Fran' : 'Yox'} debe aportar ${formatCurrency(split.settlementAmount)}`}</span>
+            <div style="padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-sm); border: 1px solid var(--accent-gold);">
+              <div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0.2rem;">🤝 PARA QUEDAR A PAR (COMPENSACIÓN):</div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">
+                ${split.settlementText}
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Right: Recent Expenses Quick List (Unified Card Pattern) -->
+        <!-- Right: Monthly Historical Comparison -->
         <div class="glass-card">
           <div class="glass-card-header">
-            <span class="glass-card-title">💸 Últimos Gastos</span>
-            <button class="btn btn-secondary btn-sm" onclick="appState.activeTab = 'gastos'; state.notify();">Ver todos</button>
+            <span class="glass-card-title">📈 Comparativa de Meses</span>
+            <span class="badge badge-success">📉 -12% este mes</span>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            ${expenses.slice(0, 4).map(item => `
-              <div class="unified-list-card">
-                <div class="unified-card-badge expense">
-                  <span class="num">💳</span>
-                </div>
-                <div class="unified-card-body">
-                  <div class="unified-card-top">
-                    <span class="title">${item.descripcion}</span>
-                    <span class="badge badge-purple">${item.categoria}</span>
-                  </div>
-                  <div class="unified-card-bottom">
-                    <span class="subtext">Pagó: ${item.pagado_por === 'person_a' ? 'Fran' : 'Yox'}</span>
-                    <span class="amount" style="color: var(--expense-color); font-weight: 700;">-${formatCurrency(item.monto)}</span>
-                  </div>
-                </div>
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>Septiembre 2026 (Actual)</span>
+                <span style="color: var(--expense-color);">${formatCurrency(totalExpenses)}</span>
               </div>
-            `).join('')}
+              <div class="progress-bar-container" style="margin-top: 0.4rem;">
+                <div class="progress-bar-fill warning" style="width: 65%;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>Agosto 2026</span>
+                <span style="color: var(--text-muted);">${formatCurrency(2470000)}</span>
+              </div>
+              <div class="progress-bar-container" style="margin-top: 0.4rem;">
+                <div class="progress-bar-fill danger" style="width: 78%;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
+                <span>Julio 2026</span>
+                <span style="color: var(--text-muted);">${formatCurrency(2650000)}</span>
+              </div>
+              <div class="progress-bar-container" style="margin-top: 0.4rem;">
+                <div class="progress-bar-fill danger" style="width: 84%;"></div>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--income-color); font-weight: 600; text-align: center; margin-top: 0.25rem;">
+              📉 ¡Este mes gastaron $250.000 menos que el anterior! 🎉
+            </div>
           </div>
         </div>
       </div>

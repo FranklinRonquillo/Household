@@ -20,7 +20,7 @@ function renderMarketModule(appState) {
           <h2>🛒 Lista del Mercado Inteligente</h2>
           <p style="color: var(--text-muted); font-size: 0.875rem;">Lleven la lista al supermercado y controlen el carrito en vivo</p>
         </div>
-        <button class="btn btn-primary" onclick="addMarketItemPrompt()">+ Agregar Producto</button>
+        <button class="btn btn-primary" onclick="openMarketModal()">+ Agregar Producto</button>
       </div>
 
       <div class="market-container">
@@ -88,19 +88,5 @@ function toggleMarketItem(id) {
 }
 
 function addMarketItemPrompt() {
-  const name = prompt('Nombre del producto (ej: Queso tajado):');
-  if (!name) return;
-  const priceStr = prompt('Precio aproximado en COP:', '15000');
-  const price = parseInt(priceStr) || 0;
-  
-  state.set(current => ({
-    ...current,
-    market: {
-      ...current.market,
-      items: [
-        ...current.market.items,
-        { id: Date.now(), name, price, category: 'Varios', checked: false }
-      ]
-    }
-  }));
+  openMarketModal();
 }

@@ -74,7 +74,7 @@
           <div class="month-selector">
             <span>📅 Septiembre 2026</span>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openExpenseModal()">
+          <button class="btn btn-primary btn-sm" id="top-add-expense-btn" onclick="openExpenseModal()" style="display: none;">
             + Nuevo Gasto
           </button>
         </div>
@@ -168,7 +168,7 @@
     </div>
   </div>
 
-  <!-- Register Expense Modal -->
+  <!-- 1. Register Expense Modal -->
   <div class="modal-overlay" id="modal-expense">
     <div class="modal-container">
       <div class="modal-header">
@@ -193,7 +193,7 @@
             <option value="Comida fuera">🍔 Comida fuera</option>
             <option value="Transporte">🚌 Transporte</option>
             <option value="Internet/celular">📱 Internet/celular</option>
-            <option value="Aseo">🧴 Aseo</option>
+            <option value="Aseo">成分 Aseo</option>
             <option value="Entretenimiento">🎮 Entretenimiento</option>
             <option value="Gastos personales">🩷 Gastos personales</option>
           </select>
@@ -216,6 +216,145 @@
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
           <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar Gasto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Register Debt Modal -->
+  <div class="modal-overlay" id="modal-debt">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem;">🧾 Registrar Deuda / Cuota Pendiente</h3>
+        <button class="modal-close" onclick="closeDebtModal()">✕</button>
+      </div>
+      <form onsubmit="handleNewDebtSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Concepto de la deuda o pago</label>
+          <input type="text" name="concept" class="form-input" placeholder="ej: Cuota administración apto, Préstamo cena" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto (COP)</label>
+          <input type="number" name="amount" class="form-input" placeholder="ej: 180000" required min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de vencimiento</label>
+          <input type="date" name="dueDate" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo / Clasificación</label>
+          <select name="type" class="form-select">
+            <option value="Servicio">💡 Servicio</option>
+            <option value="Tarjeta">💳 Tarjeta de Crédito</option>
+            <option value="Pareja">🤝 Préstamo entre Pareja</option>
+            <option value="Cuota">📦 Cuota del Hogar</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeDebtModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Deuda</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Add Market Item Modal -->
+  <div class="modal-overlay" id="modal-market">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem;">🛒 Agregar Producto al Mercado</h3>
+        <button class="modal-close" onclick="closeMarketModal()">✕</button>
+      </div>
+      <form onsubmit="handleNewMarketItemSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Nombre del producto</label>
+          <input type="text" name="name" class="form-input" placeholder="ej: Queso tajado, Pechuga de pollo, Huevos" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio estimado (COP)</label>
+          <input type="number" name="price" class="form-input" placeholder="ej: 15000" required min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pasillo / Categoría</label>
+          <select name="category" class="form-select">
+            <option value="Despensa">📦 Despensa</option>
+            <option value="Carnes">🥩 Carnes y Pollos</option>
+            <option value="Lácteos">🥛 Lácteos</option>
+            <option value="Verduras">🥦 Verduras y Frutas</option>
+            <option value="Aseo">🧴 Aseo del Hogar</option>
+            <option value="Varios">🛒 Varios</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeMarketModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Agregar a la Lista</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Add Savings Goal Modal -->
+  <div class="modal-overlay" id="modal-savings">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem;">🎯 Crear Nueva Meta de Ahorro</h3>
+        <button class="modal-close" onclick="closeSavingsModal()">✕</button>
+      </div>
+      <form onsubmit="handleNewSavingsGoalSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Título de la meta</label>
+          <input type="text" name="title" class="form-input" placeholder="ej: Viaje a la playa ✈️, Fondo de emergencia 🆘" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto Objetivo (COP)</label>
+          <input type="number" name="target" class="form-input" placeholder="ej: 5000000" required min="1000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Icono Representativo</label>
+          <select name="icon" class="form-select">
+            <option value="🏠">🏠 Casa</option>
+            <option value="🚗">🚗 Carro / Moto</option>
+            <option value="✈️">✈️ Viaje</option>
+            <option value="💍">💍 Boda / Compromiso</option>
+            <option value="🆘">🆘 Fondo de Emergencia</option>
+            <option value="🎁">🎁 Meta Personal</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeSavingsModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Crear Meta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Add Memory Photo Modal -->
+  <div class="modal-overlay" id="modal-memory">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem;">📸 Guardar Nuevo Recuerdo del Hogar</h3>
+        <button class="modal-close" onclick="closeMemoryModal()">✕</button>
+      </div>
+      <form onsubmit="handleNewMemorySubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Título del recuerdo</label>
+          <input type="text" name="title" class="form-input" placeholder="ej: Primer mercado juntos 🛒" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha o momento</label>
+          <input type="text" name="date" class="form-input" placeholder="ej: 15 Mayo 2026" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción / Anécdota</label>
+          <textarea name="desc" class="form-textarea" rows="3" placeholder="Un momento inolvidable que recordaremos siempre..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL de la foto</label>
+          <input type="url" name="image" class="form-input" placeholder="https://..." required value="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=600&q=80">
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeMemoryModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Recuerdo</button>
         </div>
       </form>
     </div>

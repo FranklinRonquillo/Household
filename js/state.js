@@ -27,13 +27,13 @@ const INITIAL_STATE = {
     'Entretenimiento': 150000
   },
 
-  // Registered Expenses
+  // Registered Expenses (Explicit Payer and Type)
   expenses: [
-    { id: 1, categoria: 'Arriendo', descripcion: 'Pago del apartamento', monto: 900000, pagado_por: 'casa', tipo_gasto: 'compartido', fecha: '2026-09-01' },
-    { id: 2, categoria: 'Mercado', descripcion: 'Mercado principal Éxito', monto: 500000, pagado_por: 'casa', tipo_gasto: 'compartido', fecha: '2026-09-05' },
-    { id: 3, categoria: 'Servicios', descripcion: 'Luz y agua EPM', monto: 210000, pagado_por: 'casa', tipo_gasto: 'compartido', fecha: '2026-09-08' },
+    { id: 1, categoria: 'Arriendo', descripcion: 'Pago del apartamento', monto: 900000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-01' },
+    { id: 2, categoria: 'Mercado', descripcion: 'Mercado principal Éxito', monto: 500000, pagado_por: 'person_b', tipo_gasto: 'compartido', fecha: '2026-09-05' },
+    { id: 3, categoria: 'Servicios', descripcion: 'Luz y agua EPM', monto: 210000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-08' },
     { id: 4, categoria: 'Transporte', descripcion: 'Gasolina carro', monto: 140000, pagado_por: 'person_b', tipo_gasto: 'compartido', fecha: '2026-09-12' },
-    { id: 5, categoria: 'Comida fuera', descripcion: 'Cena de aniversario', monto: 120000, pagado_por: 'casa', tipo_gasto: 'compartido', fecha: '2026-09-15' },
+    { id: 5, categoria: 'Comida fuera', descripcion: 'Cena de aniversario', monto: 120000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-15' },
     { id: 6, categoria: 'Gastos personales', descripcion: 'Ropa personal Fran', monto: 150000, pagado_por: 'person_a', tipo_gasto: 'personal_a', fecha: '2026-09-18' },
     { id: 7, categoria: 'Gastos personales', descripcion: 'Maquillaje y cuidado Yox', monto: 110000, pagado_por: 'person_b', tipo_gasto: 'personal_b', fecha: '2026-09-20' }
   ],
@@ -116,7 +116,6 @@ const INITIAL_STATE = {
 // Global reactive State Proxy
 class StateManager {
   constructor() {
-    // Reset state to update profiles cleanly
     this.data = INITIAL_STATE;
     localStorage.setItem('household_state', JSON.stringify(this.data));
     this.listeners = [];
