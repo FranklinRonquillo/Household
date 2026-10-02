@@ -4,11 +4,19 @@
 
 /**
  * Calculates the exact proportional expense split based on monthly incomes.
- * Rule: Expenses are proportional to monthly income.
- * If Fran earns 60% and Yox earns 40%, shared expenses of $1,000,000 mean:
- * - Fran's fair share: $600,000
- * - Yox's fair share: $400,000
- * Settlement calculates who paid more out of pocket and who must transfer how much to whom.
+ * RULE:
+ * 1. Proportions are calculated from monthly incomes:
+ *    Fran % = Income Fran / Total Income
+ *    Yox % = Income Yox / Total Income
+ * 2. Total Shared Expenses = Money ACTUALLY paid out of pocket for shared house items
+ *    Total Shared = Paid by Fran + Paid by Yox
+ * 3. Fair shares of money spent so far:
+ *    Due Fran = Total Shared * Fran %
+ *    Due Yox = Total Shared * Yox %
+ * 4. Settlement Transfer:
+ *    Only transfers money if one partner has physically paid more than their proportional share out of pocket.
+ *    - If Fran paid > Due Fran: Yox pays Fran (Paid Fran - Due Fran)
+ *    - If Yox paid > Due Yox: Fran pays Yox (Paid Yox - Due Yox)
  */
 function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
   const safeIncomeA = Math.max(0, incomeA || 0);
@@ -40,14 +48,13 @@ function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
   const ratioA = safeIncomeA / totalIncome;
   const ratioB = safeIncomeB / totalIncome;
 
-  let totalShared = 0;
   let paidA = 0;
   let paidB = 0;
 
+  // Sum out-of-pocket payments for shared expenses
   sharedExpenses.forEach(item => {
     const amount = Number(item.monto) || 0;
-    if (item.tipo_gasto === 'compartido' || item.es_compartido) {
-      totalShared += amount;
+    if (item.tipo_gasto === 'compartido' || item.es_compartido || !item.tipo_gasto) {
       if (item.pagado_por === 'person_a') {
         paidA += amount;
       } else if (item.pagado_por === 'person_b') {
@@ -56,28 +63,32 @@ function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
     }
   });
 
+  // Total shared money actually spent out of pocket so far
+  const totalShared = paidA + paidB;
+
+  // Fair share of the money spent so far
   const dueA = totalShared * ratioA;
   const dueB = totalShared * ratioB;
 
-  // Difference: paidA - dueA
-  // Positive: Person A paid more than his share -> Person B must transfer to Person A
-  // Negative: Person A paid less than his share -> Person A must transfer to Person B
-  const diffA = paidA - dueA;
+  // Net overpayment: Paid - Due
+  const diffA = paidA - dueA; // If positive, Fran overpaid. If negative, Fran underpaid.
 
   let sender = null;
   let receiver = null;
   let settlementAmount = Math.abs(Math.round(diffA));
   let settlementText = '';
 
-  if (settlementAmount < 100) {
-    settlementText = '¡Están a mano! Nadie le debe a nadie 🎉';
+  if (totalShared === 0 || settlementAmount < 50) {
+    settlementText = '¡Están a mano! Nadie debe nada 🎉';
   } else if (diffA > 0) {
-    sender = nameB; // Yox must pay
-    receiver = nameA; // Fran receives
+    // Fran paid more than his share -> Yox must transfer to Fran
+    sender = nameB;
+    receiver = nameA;
     settlementText = `👩🏻 ${nameB} debe darle ${formatCurrency(settlementAmount)} a 👨🏻 ${nameA}`;
   } else {
-    sender = nameA; // Fran must pay
-    receiver = nameB; // Yox receives
+    // Yox paid more than her share -> Fran must transfer to Yox
+    sender = nameA;
+    receiver = nameB;
     settlementText = `👨🏻 ${nameA} debe darle ${formatCurrency(settlementAmount)} a 👩🏻 ${nameB}`;
   }
 
