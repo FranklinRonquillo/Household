@@ -3,16 +3,20 @@
    ========================================================================== */
 
 /**
- * Calculates the exact proportional expense split based on monthly incomes
- * @param {number} incomeA - Income of Person A (e.g. Franklin)
- * @param {number} incomeB - Income of Person B (Partner)
- * @param {Array} sharedExpenses - Array of shared expense items
- * @returns {Object} Proportional split breakdown
+ * Calculates the exact proportional expense split based on monthly incomes.
+ * Rule: Expenses are proportional to monthly income.
+ * If Fran earns 60% and Yox earns 40%, shared expenses of $1,000,000 mean:
+ * - Fran's fair share: $600,000
+ * - Yox's fair share: $400,000
+ * Settlement calculates who paid more out of pocket and who must transfer how much to whom.
  */
 function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
   const safeIncomeA = Math.max(0, incomeA || 0);
   const safeIncomeB = Math.max(0, incomeB || 0);
   const totalIncome = safeIncomeA + safeIncomeB;
+
+  const nameA = 'Fran';
+  const nameB = 'Yox';
 
   if (totalIncome === 0) {
     return {
@@ -26,8 +30,10 @@ function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
       paidA: 0,
       paidB: 0,
       balance: 0,
-      debtorName: 'Nadie',
-      settlementAmount: 0
+      sender: null,
+      receiver: null,
+      settlementAmount: 0,
+      settlementText: '¡Están a mano! Nadie debe nada.'
     };
   }
 
@@ -46,9 +52,6 @@ function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
         paidA += amount;
       } else if (item.pagado_por === 'person_b') {
         paidB += amount;
-      } else if (item.pagado_por === 'casa' || !item.pagado_por) {
-        paidA += amount * ratioA;
-        paidB += amount * ratioB;
       }
     }
   });
@@ -56,18 +59,26 @@ function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
   const dueA = totalShared * ratioA;
   const dueB = totalShared * ratioB;
 
-  // Compensation balance: Positive means Person B owes Person A
-  const balance = paidA - dueA; 
+  // Difference: paidA - dueA
+  // Positive: Person A paid more than his share -> Person B must transfer to Person A
+  // Negative: Person A paid less than his share -> Person A must transfer to Person B
+  const diffA = paidA - dueA;
 
-  let debtorName = 'Empatados';
-  let settlementAmount = 0;
+  let sender = null;
+  let receiver = null;
+  let settlementAmount = Math.abs(Math.round(diffA));
+  let settlementText = '';
 
-  if (balance > 0) {
-    debtorName = 'Ella';
-    settlementAmount = balance;
-  } else if (balance < 0) {
-    debtorName = 'Tú';
-    settlementAmount = Math.abs(balance);
+  if (settlementAmount < 100) {
+    settlementText = '¡Están a mano! Nadie le debe a nadie 🎉';
+  } else if (diffA > 0) {
+    sender = nameB; // Yox must pay
+    receiver = nameA; // Fran receives
+    settlementText = `👩🏻 ${nameB} debe darle ${formatCurrency(settlementAmount)} a 👨🏻 ${nameA}`;
+  } else {
+    sender = nameA; // Fran must pay
+    receiver = nameB; // Yox receives
+    settlementText = `👨🏻 ${nameA} debe darle ${formatCurrency(settlementAmount)} a 👩🏻 ${nameB}`;
   }
 
   return {
@@ -76,13 +87,15 @@ function calculateProportionalSplit(incomeA, incomeB, sharedExpenses = []) {
     percentA: ratioA * 100,
     percentB: ratioB * 100,
     totalShared,
-    dueA,
-    dueB,
-    paidA,
-    paidB,
-    balance,
-    debtorName,
-    settlementAmount
+    dueA: Math.round(dueA),
+    dueB: Math.round(dueB),
+    paidA: Math.round(paidA),
+    paidB: Math.round(paidB),
+    balance: diffA,
+    sender,
+    receiver,
+    settlementAmount,
+    settlementText
   };
 }
 
