@@ -226,26 +226,241 @@
   border-radius: var(--radius-full);
 }
 
-/* Theme Toggle Switch Button */
-.theme-toggle-btn {
+/* Theme Gear Settings Button & Palette Customizer */
+.theme-gear-btn {
   background: var(--bg-glass);
   border: 1px solid var(--border-glass);
   color: var(--text-main);
-  padding: 0.4rem 0.75rem;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--transition-fast);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.theme-gear-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+  box-shadow: 0 0 14px var(--primary-glow);
+}
+
+.theme-gear-btn .gear-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--text-main);
+}
+
+.theme-gear-btn:hover .gear-icon {
+  transform: rotate(90deg) scale(1.1);
+  color: var(--primary);
+}
+
+.theme-current-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  border: 1.5px solid var(--bg-surface);
+  box-shadow: 0 0 6px var(--primary);
+  pointer-events: none;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Theme Modal Container & Sections */
+.theme-modal-container {
+  max-width: 560px;
+}
+
+.theme-mode-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.theme-section-title {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.theme-mode-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background: var(--bg-glass);
+  padding: 0.3rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+}
+
+.theme-mode-pill {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  font-weight: 600;
+  justify-content: center;
+  gap: 0.5rem;
   transition: all var(--transition-fast);
-  white-space: nowrap;
 }
 
-.theme-toggle-btn:hover {
+.theme-mode-pill:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.theme-mode-pill.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-category-heading {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.theme-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+
+@media (max-width: 500px) {
+  .theme-palette-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.theme-palette-card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.theme-palette-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.theme-palette-card.active {
   border-color: var(--primary);
   background: var(--primary-glow);
+  box-shadow: 0 0 16px var(--primary-glow);
+}
+
+.palette-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+}
+
+.swatch-check {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 900;
+  display: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.theme-palette-card.active .swatch-check {
+  display: block;
+}
+
+.palette-info {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.palette-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.palette-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Color Swatches */
+.swatch-pink { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+.swatch-lavender { background: linear-gradient(135deg, #a855f7, #ec4899); }
+.swatch-blue { background: linear-gradient(135deg, #3b82f6, #06b6d4); }
+.swatch-emerald { background: linear-gradient(135deg, #10b981, #06b6d4); }
+.swatch-purple { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
+.swatch-gold { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+.swatch-cyan { background: linear-gradient(135deg, #06b6d4, #6366f1); }
+.swatch-ruby { background: linear-gradient(135deg, #ef4444, #f97316); }
+
+/* Theme Live Preview Box */
+.theme-preview-box {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-glass);
+  border: 1px dashed var(--border-accent);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.825rem;
+}
+
+.theme-preview-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.theme-preview-active-name {
+  color: var(--primary);
+  font-weight: 700;
 }
 
 /* Badges & Status */

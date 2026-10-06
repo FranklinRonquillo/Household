@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="dark" data-color="pink">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,8 +68,14 @@
         </div>
 
         <div class="header-actions">
-          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()">
-            ☀️ Modo Claro
+          <button class="theme-gear-btn" id="theme-gear-btn" onclick="openThemeModal()" title="Personalizar temas y colores" aria-label="Personalizar temas y colores">
+            <span class="gear-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </span>
+            <span class="theme-current-dot" id="theme-current-dot" title="Color actual"></span>
           </button>
           <div class="month-selector">
             <span>📅 Septiembre 2026</span>
@@ -357,6 +363,153 @@
           <button type="submit" class="btn btn-primary">Guardar Recuerdo</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- 6. Theme & Colors Customizer Modal -->
+  <div class="modal-overlay" id="modal-theme" onclick="if(event.target === this) closeThemeModal()">
+    <div class="modal-container theme-modal-container">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span style="font-size: 1.4rem;">⚙️</span>
+          <div>
+            <h3 style="font-size: 1.15rem; margin: 0;">Personalizar Colores & Tema</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Elige los colores favoritos para el hogar de Fran & Yox</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeThemeModal()">✕</button>
+      </div>
+
+      <!-- Mode Selector (Dark / Light) -->
+      <div class="theme-mode-section">
+        <label class="theme-section-title">Modo de Visualización</label>
+        <div class="theme-mode-toggle-group">
+          <button type="button" class="theme-mode-pill" id="mode-pill-dark" onclick="setThemeMode('dark')">
+            <span>🌙</span> Modo Oscuro
+          </button>
+          <button type="button" class="theme-mode-pill" id="mode-pill-light" onclick="setThemeMode('light')">
+            <span>☀️</span> Modo Claro
+          </button>
+        </div>
+      </div>
+
+      <!-- Color Palettes Section -->
+      <div class="theme-palettes-section">
+        <label class="theme-section-title">Paletas de Colores</label>
+        
+        <div class="theme-category-heading">
+          <span>🌸 Femeninos & Románticos</span>
+        </div>
+        <div class="theme-palette-grid">
+          <!-- Rosado Romance -->
+          <div class="theme-palette-card" data-color-id="pink" onclick="setThemeColor('pink')">
+            <div class="palette-swatch swatch-pink">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Rosa Romance</div>
+              <div class="palette-sub">Rosado pastel & fucsia</div>
+            </div>
+          </div>
+
+          <!-- Lavanda & Lila -->
+          <div class="theme-palette-card" data-color-id="lavender" onclick="setThemeColor('lavender')">
+            <div class="palette-swatch swatch-lavender">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Lavanda & Lila</div>
+              <div class="palette-sub">Malva suave & dulce</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-category-heading" style="margin-top: 1rem;">
+          <span>💙 Masculinos & Frescos</span>
+        </div>
+        <div class="theme-palette-grid">
+          <!-- Azul Zafiro -->
+          <div class="theme-palette-card" data-color-id="blue" onclick="setThemeColor('blue')">
+            <div class="palette-swatch swatch-blue">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Azul Zafiro</div>
+              <div class="palette-sub">Océano profundo & cobalto</div>
+            </div>
+          </div>
+
+          <!-- Verde Esmeralda -->
+          <div class="theme-palette-card" data-color-id="emerald" onclick="setThemeColor('emerald')">
+            <div class="palette-swatch swatch-emerald">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Verde Esmeralda</div>
+              <div class="palette-sub">Menta fresca & bosque</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="theme-category-heading" style="margin-top: 1rem;">
+          <span>✨ Sofisticados, Lujo & Pareja</span>
+        </div>
+        <div class="theme-palette-grid">
+          <!-- Morado Real -->
+          <div class="theme-palette-card" data-color-id="purple" onclick="setThemeColor('purple')">
+            <div class="palette-swatch swatch-purple">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Morado Real</div>
+              <div class="palette-sub">Púrpura & amatista</div>
+            </div>
+          </div>
+
+          <!-- Dorado Imperial -->
+          <div class="theme-palette-card" data-color-id="gold" onclick="setThemeColor('gold')">
+            <div class="palette-swatch swatch-gold">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Dorado Imperial</div>
+              <div class="palette-sub">Oro champagne & ámbar</div>
+            </div>
+          </div>
+
+          <!-- Cian Eléctrico -->
+          <div class="theme-palette-card" data-color-id="cyan" onclick="setThemeColor('cyan')">
+            <div class="palette-swatch swatch-cyan">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Cian Eléctrico</div>
+              <div class="palette-sub">Teal moderno & índigo</div>
+            </div>
+          </div>
+
+          <!-- Rubí Pasión -->
+          <div class="theme-palette-card" data-color-id="ruby" onclick="setThemeColor('ruby')">
+            <div class="palette-swatch swatch-ruby">
+              <span class="swatch-check">✓</span>
+            </div>
+            <div class="palette-info">
+              <div class="palette-name">Rubí Pasión</div>
+              <div class="palette-sub">Rojo rubí & fuego cálido</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Preview Summary Pill -->
+      <div class="theme-preview-box">
+        <span class="theme-preview-label">Tema activo:</span>
+        <span class="theme-preview-active-name" id="theme-active-preview-name">🌸 Rosa Romance · Modo Oscuro</span>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+        <button type="button" class="btn btn-primary" onclick="closeThemeModal()">Listo</button>
+      </div>
     </div>
   </div>
 

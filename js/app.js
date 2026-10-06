@@ -16,24 +16,99 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
 });
 
+// Theme Palettes Catalog
+const THEME_PALETTES = {
+  pink: { name: 'Rosa Romance', category: 'femenino', emoji: '🌸', color: '#ec4899' },
+  lavender: { name: 'Lavanda & Lila', category: 'femenino', emoji: '🌷', color: '#a855f7' },
+  blue: { name: 'Azul Zafiro', category: 'masculino', emoji: '💙', color: '#3b82f6' },
+  emerald: { name: 'Verde Esmeralda', category: 'masculino', emoji: '🌿', color: '#10b981' },
+  purple: { name: 'Morado Real', category: 'pareja', emoji: '💜', color: '#8b5cf6' },
+  gold: { name: 'Dorado Imperial', category: 'pareja', emoji: '👑', color: '#f59e0b' },
+  cyan: { name: 'Cian Eléctrico', category: 'pareja', emoji: '⚡', color: '#06b6d4' },
+  ruby: { name: 'Rubí Pasión', category: 'pareja', emoji: '🔥', color: '#ef4444' }
+};
+
 function initTheme() {
-  const savedTheme = localStorage.getItem('household_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  updateThemeButtonUI(savedTheme);
+  const savedMode = localStorage.getItem('household_theme_mode') || localStorage.getItem('household_theme') || 'dark';
+  const savedColor = localStorage.getItem('household_theme_color') || 'pink';
+  document.documentElement.setAttribute('data-theme', savedMode);
+  document.documentElement.setAttribute('data-color', savedColor);
+  updateThemeUI();
+
+  // Close modals on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeThemeModal();
+      if (typeof closeExpenseModal === 'function') closeExpenseModal();
+      if (typeof closeDebtModal === 'function') closeDebtModal();
+      if (typeof closeMarketModal === 'function') closeMarketModal();
+      if (typeof closeSavingsModal === 'function') closeSavingsModal();
+      if (typeof closeMemoryModal === 'function') closeMemoryModal();
+    }
+  });
 }
 
-function toggleTheme() {
-  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('household_theme', newTheme);
-  updateThemeButtonUI(newTheme);
+function setThemeMode(mode) {
+  document.documentElement.setAttribute('data-theme', mode);
+  localStorage.setItem('household_theme_mode', mode);
+  localStorage.setItem('household_theme', mode);
+  updateThemeUI();
 }
 
-function updateThemeButtonUI(theme) {
-  const btn = document.getElementById('theme-toggle-btn');
-  if (btn) {
-    btn.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+function setThemeColor(colorId) {
+  if (!THEME_PALETTES[colorId]) return;
+  document.documentElement.setAttribute('data-color', colorId);
+  localStorage.setItem('household_theme_color', colorId);
+  updateThemeUI();
+}
+
+function updateThemeUI() {
+  const currentMode = document.documentElement.getAttribute('data-theme') || 'dark';
+  const currentColor = document.documentElement.getAttribute('data-color') || 'pink';
+
+  // Update mode pills
+  const pillDark = document.getElementById('mode-pill-dark');
+  const pillLight = document.getElementById('mode-pill-light');
+  if (pillDark && pillLight) {
+    pillDark.classList.toggle('active', currentMode === 'dark');
+    pillLight.classList.toggle('active', currentMode === 'light');
+  }
+
+  // Update active card in modal
+  const cards = document.querySelectorAll('.theme-palette-card');
+  cards.forEach(card => {
+    const cardColor = card.getAttribute('data-color-id');
+    card.classList.toggle('active', cardColor === currentColor);
+  });
+
+  // Update live preview label in modal
+  const previewName = document.getElementById('theme-active-preview-name');
+  if (previewName) {
+    const palette = THEME_PALETTES[currentColor] || THEME_PALETTES.pink;
+    const modeLabel = currentMode === 'dark' ? 'Modo Oscuro' : 'Modo Claro';
+    previewName.textContent = `${palette.emoji} ${palette.name} · ${modeLabel}`;
+  }
+
+  // Update theme current dot on gear button
+  const currentDot = document.getElementById('theme-current-dot');
+  if (currentDot && THEME_PALETTES[currentColor]) {
+    currentDot.style.background = THEME_PALETTES[currentColor].color;
+    currentDot.style.boxShadow = `0 0 8px ${THEME_PALETTES[currentColor].color}`;
+  }
+}
+
+function openThemeModal() {
+  const modal = document.getElementById('modal-theme');
+  if (modal) {
+    updateThemeUI();
+    modal.classList.add('active');
+  }
+}
+
+function closeThemeModal() {
+  const modal = document.getElementById('modal-theme');
+  if (modal) {
+    modal.classList.remove('active');
   }
 }
 
