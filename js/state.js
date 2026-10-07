@@ -113,12 +113,22 @@ const INITIAL_STATE = {
   ]
 };
 
-// Global reactive State Proxy
+// Global reactive State Proxy with LocalStorage & Supabase Realtime Sync
 class StateManager {
   constructor() {
-    this.data = INITIAL_STATE;
-    localStorage.setItem('household_state', JSON.stringify(this.data));
+    const saved = localStorage.getItem('household_state');
+    if (saved) {
+      try {
+        this.data = { ...INITIAL_STATE, ...JSON.parse(saved) };
+      } catch (e) {
+        this.data = INITIAL_STATE;
+      }
+    } else {
+      this.data = INITIAL_STATE;
+      localStorage.setItem('household_state', JSON.stringify(this.data));
+    }
     this.listeners = [];
+    this._realtimeChannel = null;
   }
 
   get() {
@@ -144,6 +154,67 @@ class StateManager {
 
   notify() {
     this.listeners.forEach(listener => listener(this.data));
+  }
+
+  async syncWithSupabase() {
+    const sb = typeof getSupabase === 'function' ? getSupabase() : null;
+    if (!sb) return;
+
+    try {
+      // 1. Fetch expenses
+      const { data: expenses } = await sb.from('expenses').select('*').order('id', { ascending: false });
+      // 2. Fetch debts
+      const { data: debts } = await sb.from('debts').select('*').order('id', { ascending: false });
+      // 3. Fetch savings_goals
+      const { data: savings } = await sb.from('savings_goals').select('*').order('id', { ascending: true });
+      // 4. Fetch market_items
+      const { data: marketItems } = await sb.from('market_items').select('*').order('id', { ascending: true });
+      // 5. Fetch memories
+      const { data: memories } = await sb.from('memories').select('*').order('id', { ascending: false });
+
+      this.set(current => ({
+        ...current,
+        expenses: (expenses && expenses.length > 0) ? expenses : current.expenses,
+        debts: (debts && debts.length > 0) ? debts.map(d => ({ ...d, dueDate: d.due_date || d.dueDate })) : current.debts,
+        savingsGoals: (savings && savings.length > 0) ? savings : current.savingsGoals,
+        market: {
+          ...current.market,
+          items: (marketItems && marketItems.length > 0) ? marketItems : current.market.items
+        },
+        memories: (memories && memories.length > 0) ? memories.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) : current.memories
+      }));
+
+      // Setup Realtime live syncing
+      this.setupRealtime(sb);
+    } catch (err) {
+      console.warn('Supabase sync warning:', err);
+    }
+  }
+
+  setupRealtime(sb) {
+    if (this._realtimeChannel) return;
+    this._realtimeChannel = sb.channel('household-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, async () => {
+        const { data } = await sb.from('expenses').select('*').order('id', { ascending: false });
+        if (data) this.set(c => ({ ...c, expenses: data }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'debts' }, async () => {
+        const { data } = await sb.from('debts').select('*').order('id', { ascending: false });
+        if (data) this.set(c => ({ ...c, debts: data.map(d => ({ ...d, dueDate: d.due_date || d.dueDate })) }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'savings_goals' }, async () => {
+        const { data } = await sb.from('savings_goals').select('*').order('id', { ascending: true });
+        if (data) this.set(c => ({ ...c, savingsGoals: data }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'market_items' }, async () => {
+        const { data } = await sb.from('market_items').select('*').order('id', { ascending: true });
+        if (data) this.set(c => ({ ...c, market: { ...c.market, items: data } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'memories' }, async () => {
+        const { data } = await sb.from('memories').select('*').order('id', { ascending: false });
+        if (data) this.set(c => ({ ...c, memories: data.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) }));
+      })
+      .subscribe();
   }
 }
 

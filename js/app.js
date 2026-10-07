@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Theme (Dark / Light)
   initTheme();
 
+  // Initialize Supabase Live Sync
+  state.syncWithSupabase();
+
   // Subscribe to reactive state updates
   state.subscribe(renderApp);
 
@@ -206,6 +209,21 @@ function handleNewExpenseSubmit(event) {
     expenses: [newExpense, ...current.expenses]
   }));
 
+  // Sync to Supabase in background
+  const sbExpense = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sbExpense) {
+    sbExpense.from('expenses').insert([{
+      descripcion,
+      monto,
+      categoria,
+      pagado_por,
+      tipo_gasto,
+      fecha: newExpense.fecha
+    }]).then(({ error }) => {
+      if (error) console.error('Error sincronizando gasto con Supabase:', error);
+    });
+  }
+
   form.reset();
   closeExpenseModal();
 }
@@ -240,6 +258,20 @@ function handleNewDebtSubmit(event) {
     ...current,
     debts: [newDebt, ...current.debts]
   }));
+
+  // Sync to Supabase in background
+  const sbDebt = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sbDebt) {
+    sbDebt.from('debts').insert([{
+      concept: newDebt.concept,
+      amount: newDebt.amount,
+      due_date: newDebt.dueDate,
+      type: newDebt.type,
+      status: newDebt.status
+    }]).then(({ error }) => {
+      if (error) console.error('Error sincronizando deuda con Supabase:', error);
+    });
+  }
 
   form.reset();
   closeDebtModal();
@@ -277,6 +309,19 @@ function handleNewMarketItemSubmit(event) {
     }
   }));
 
+  // Sync to Supabase in background
+  const sbMarket = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sbMarket) {
+    sbMarket.from('market_items').insert([{
+      name: newItem.name,
+      price: newItem.price,
+      category: newItem.category,
+      checked: false
+    }]).then(({ error }) => {
+      if (error) console.error('Error sincronizando producto con Supabase:', error);
+    });
+  }
+
   form.reset();
   closeMarketModal();
 }
@@ -309,6 +354,19 @@ function handleNewSavingsGoalSubmit(event) {
     ...current,
     savingsGoals: [...current.savingsGoals, newGoal]
   }));
+
+  // Sync to Supabase in background
+  const sbSavings = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sbSavings) {
+    sbSavings.from('savings_goals').insert([{
+      title: newGoal.title,
+      current: 0,
+      target: newGoal.target,
+      icon: newGoal.icon
+    }]).then(({ error }) => {
+      if (error) console.error('Error sincronizando meta con Supabase:', error);
+    });
+  }
 
   form.reset();
   closeSavingsModal();
@@ -343,6 +401,19 @@ function handleNewMemorySubmit(event) {
     ...current,
     memories: [newMemory, ...current.memories]
   }));
+
+  // Sync to Supabase in background
+  const sbMemory = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sbMemory) {
+    sbMemory.from('memories').insert([{
+      title: newMemory.title,
+      date: newMemory.date,
+      description: newMemory.desc,
+      image_url: newMemory.image
+    }]).then(({ error }) => {
+      if (error) console.error('Error sincronizando recuerdo con Supabase:', error);
+    });
+  }
 
   form.reset();
   closeMemoryModal();

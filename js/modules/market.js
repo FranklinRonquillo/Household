@@ -80,7 +80,14 @@ function renderMarketModule(appState) {
 function toggleMarketItem(id) {
   state.set(current => {
     const updatedItems = current.market.items.map(item => {
-      if (item.id === id) return { ...item, checked: !item.checked };
+      if (item.id === id) {
+        const nextChecked = !item.checked;
+        const sb = typeof getSupabase === 'function' ? getSupabase() : null;
+        if (sb) {
+          sb.from('market_items').update({ checked: nextChecked }).eq('id', id).then();
+        }
+        return { ...item, checked: nextChecked };
+      }
       return item;
     });
     return { ...current, market: { ...current.market, items: updatedItems } };
