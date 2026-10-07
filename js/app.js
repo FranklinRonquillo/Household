@@ -47,6 +47,7 @@ function initTheme() {
       if (typeof closeMarketModal === 'function') closeMarketModal();
       if (typeof closeSavingsModal === 'function') closeSavingsModal();
       if (typeof closeMemoryModal === 'function') closeMemoryModal();
+      if (typeof closeIncomeModal === 'function') closeIncomeModal();
     }
   });
 }
@@ -417,4 +418,75 @@ function handleNewMemorySubmit(event) {
 
   form.reset();
   closeMemoryModal();
+}
+
+// 6. Incomes Modal Handlers
+function openIncomeModal() {
+  const current = state.get();
+  const inputA = document.getElementById('input-income-a');
+  const inputB = document.getElementById('input-income-b');
+  if (inputA && inputB) {
+    inputA.value = current.userA ? current.userA.income : 3500000;
+    inputB.value = current.userB ? current.userB.income : 2500000;
+  }
+  updateIncomeModalPreview();
+  const modal = document.getElementById('modal-income');
+  if (modal) modal.classList.add('active');
+}
+
+function closeIncomeModal() {
+  const modal = document.getElementById('modal-income');
+  if (modal) modal.classList.remove('active');
+}
+
+function updateIncomeModalPreview() {
+  const inputA = document.getElementById('input-income-a');
+  const inputB = document.getElementById('input-income-b');
+  const previewA = document.getElementById('preview-income-a');
+  const previewB = document.getElementById('preview-income-b');
+  const previewTotal = document.getElementById('preview-income-total');
+  const barA = document.getElementById('bar-income-a');
+  const barB = document.getElementById('bar-income-b');
+  const ratioA = document.getElementById('preview-ratio-a');
+  const ratioB = document.getElementById('preview-ratio-b');
+
+  const valA = Math.max(0, parseInt(inputA ? inputA.value : 0) || 0);
+  const valB = Math.max(0, parseInt(inputB ? inputB.value : 0) || 0);
+  const total = valA + valB;
+
+  if (previewA) previewA.textContent = formatCurrency(valA);
+  if (previewB) previewB.textContent = formatCurrency(valB);
+  if (previewTotal) previewTotal.textContent = formatCurrency(total);
+
+  const pctA = total > 0 ? (valA / total) * 100 : 50;
+  const pctB = total > 0 ? (valB / total) * 100 : 50;
+
+  if (barA) barA.style.width = `${pctA}%`;
+  if (barB) barB.style.width = `${pctB}%`;
+  if (ratioA) ratioA.textContent = `Fran: ${pctA.toFixed(1)}%`;
+  if (ratioB) ratioB.textContent = `Yox: ${pctB.toFixed(1)}%`;
+}
+
+function handleIncomeSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  const incomeA = Math.max(0, parseInt(form.incomeA.value) || 0);
+  const incomeB = Math.max(0, parseInt(form.incomeB.value) || 0);
+
+  state.set(current => ({
+    ...current,
+    userA: { ...current.userA, income: incomeA },
+    userB: { ...current.userB, income: incomeB }
+  }));
+
+  // Sync to Supabase if household_settings table exists
+  const sb = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sb) {
+    sb.from('household_settings').upsert({
+      id: 'incomes',
+      data: { incomeA, incomeB, updated_at: new Date().toISOString() }
+    }).then();
+  }
+
+  closeIncomeModal();
 }

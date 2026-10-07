@@ -58,8 +58,13 @@ function renderDashboardModule(appState) {
           <span style="font-size: 0.75rem; color: var(--text-muted);">Restante seguro para el hogar</span>
         </div>
 
-        <div class="glass-card stat-widget">
-          <span class="stat-label">📥 Ingresos Totales</span>
+        <div class="glass-card stat-widget" style="cursor: pointer; position: relative;" onclick="openIncomeModal()" title="Haz clic para modificar los ingresos de Fran y Yox">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="stat-label">📥 Ingresos Totales</span>
+            <button class="btn btn-secondary btn-sm" style="padding: 2px 7px; font-size: 0.7rem; gap: 3px;" onclick="event.stopPropagation(); openIncomeModal()">
+              ✏️ Modificar
+            </button>
+          </div>
           <span class="stat-value income">${formatCurrency(totalIncome)}</span>
           <span style="font-size: 0.75rem; color: var(--text-muted);">Fran: ${formatCurrency(userA.income)} · Yox: ${formatCurrency(userB.income)}</span>
         </div>
@@ -81,7 +86,12 @@ function renderDashboardModule(appState) {
       <div class="glass-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--bg-card), var(--bg-surface));">
         <div class="glass-card-header" style="margin-bottom: 0.5rem;">
           <span class="glass-card-title">💰 Dinero Libre Individual (Post-Obligaciones)</span>
-          <span class="badge badge-success">Sin Mezclar</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="badge badge-success">Sin Mezclar</span>
+            <button class="btn btn-secondary btn-sm" onclick="openIncomeModal()" style="font-size: 0.7rem; padding: 0.2rem 0.55rem;">
+              ✏️ Sueldos
+            </button>
+          </div>
         </div>
         <p style="font-size: 0.825rem; color: var(--text-muted); margin-bottom: 0.85rem;">
           Dinero personal libre de cada uno tras cubrir la cuota proporcional de la casa:
@@ -106,7 +116,12 @@ function renderDashboardModule(appState) {
         <div class="glass-card">
           <div class="glass-card-header">
             <span class="glass-card-title">⚖️ Aportes Proporcionales (Según Sueldos)</span>
-            <span class="badge badge-purple">Automatizado</span>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span class="badge badge-purple">Automatizado</span>
+              <button class="btn btn-secondary btn-sm" onclick="openIncomeModal()" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;">
+                💰 Ajustar Sueldos
+              </button>
+            </div>
           </div>
 
           <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">

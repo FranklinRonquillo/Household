@@ -172,6 +172,15 @@ class StateManager {
       // 5. Fetch memories
       const { data: memories } = await sb.from('memories').select('*').order('id', { ascending: false });
 
+      // 6. Fetch custom incomes if household_settings exists
+      let customIncomes = null;
+      try {
+        const { data: settings } = await sb.from('household_settings').select('*').eq('id', 'incomes').maybeSingle();
+        if (settings && settings.data) customIncomes = settings.data;
+      } catch (e) {
+        // Table may not exist yet, fallback to localStorage
+      }
+
       this.set(current => ({
         ...current,
         expenses: (expenses && expenses.length > 0) ? expenses : current.expenses,
@@ -181,7 +190,9 @@ class StateManager {
           ...current.market,
           items: (marketItems && marketItems.length > 0) ? marketItems : current.market.items
         },
-        memories: (memories && memories.length > 0) ? memories.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) : current.memories
+        memories: (memories && memories.length > 0) ? memories.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) : current.memories,
+        userA: (customIncomes && customIncomes.incomeA !== undefined) ? { ...current.userA, income: customIncomes.incomeA } : current.userA,
+        userB: (customIncomes && customIncomes.incomeB !== undefined) ? { ...current.userB, income: customIncomes.incomeB } : current.userB
       }));
 
       // Setup Realtime live syncing
@@ -213,6 +224,15 @@ class StateManager {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'memories' }, async () => {
         const { data } = await sb.from('memories').select('*').order('id', { ascending: false });
         if (data) this.set(c => ({ ...c, memories: data.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'household_settings' }, async (payload) => {
+        if (payload.new && payload.new.id === 'incomes' && payload.new.data) {
+          this.set(c => ({
+            ...c,
+            userA: { ...c.userA, income: payload.new.data.incomeA },
+            userB: { ...c.userB, income: payload.new.data.incomeB }
+          }));
+        }
       })
       .subscribe();
   }
