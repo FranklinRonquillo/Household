@@ -120,6 +120,33 @@ function renderApp(appState) {
   const container = document.getElementById('main-view-container');
   if (!container) return;
 
+  // Dynamic Header Month Sync
+  const currentRealKey = (typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10';
+  const selectedMonth = appState.selectedMonth || currentRealKey;
+  const isViewingCurrent = selectedMonth === currentRealKey;
+  const monthLabel = (typeof getMonthLabel === 'function') ? getMonthLabel(selectedMonth) : 'Octubre 2026';
+
+  const headerMonthLabel = document.getElementById('header-current-month-label');
+  if (headerMonthLabel) {
+    headerMonthLabel.textContent = `${monthLabel} ${isViewingCurrent ? '· (Mes Actual)' : '· (Histórico)'}`;
+  }
+
+  const headerSelect = document.getElementById('header-month-select');
+  if (headerSelect && typeof getAvailableMonthKeys === 'function') {
+    const available = getAvailableMonthKeys(appState.expenses, 12);
+    headerSelect.innerHTML = available.map(mKey => {
+      const isCur = mKey === currentRealKey;
+      const isSel = mKey === selectedMonth;
+      const label = getMonthLabel(mKey);
+      return `<option value="${mKey}" ${isSel ? 'selected' : ''}>${label}${isCur ? ' · Actual' : ''}</option>`;
+    }).join('');
+  }
+
+  const btnToday = document.getElementById('btn-today-month');
+  if (btnToday) {
+    btnToday.style.display = isViewingCurrent ? 'none' : 'inline-flex';
+  }
+
   // Show "+ Nuevo Gasto" button ONLY in the 'gastos' tab
   const topAddBtn = document.getElementById('top-add-expense-btn');
   if (topAddBtn) {
@@ -151,6 +178,33 @@ function renderApp(appState) {
   }
 }
 
+// Time Travel & Month History Navigation Handlers
+function changeSelectedMonth(monthKey) {
+  if (!monthKey) return;
+  state.set(current => ({
+    ...current,
+    selectedMonth: monthKey,
+    currentMonth: (typeof getMonthLabel === 'function') ? getMonthLabel(monthKey) : monthKey
+  }));
+}
+
+function navigateMonth(step) {
+  const current = state.get().selectedMonth || (typeof getCurrentMonthKey === 'function' ? getCurrentMonthKey() : '2026-10');
+  const next = (typeof shiftMonthKey === 'function') ? shiftMonthKey(current, step) : current;
+  changeSelectedMonth(next);
+}
+
+function goToCurrentMonth() {
+  const current = (typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10';
+  changeSelectedMonth(current);
+}
+
+function onMonthSelectChange(event) {
+  if (event && event.target && event.target.value) {
+    changeSelectedMonth(event.target.value);
+  }
+}
+
 function setupNavigation() {
   const navItems = document.querySelectorAll('[data-tab]');
   navItems.forEach(item => {
@@ -176,22 +230,35 @@ function updateActiveNavStyles(activeTab) {
 
 // 1. Expense Modal Handlers
 function openExpenseModal() {
-  document.getElementById('modal-expense').classList.add('active');
+  const modal = document.getElementById('modal-expense');
+  if (modal) {
+    const dateInput = document.getElementById('expense-date');
+    if (dateInput) {
+      dateInput.value = (typeof formatDateToISO === 'function') ? formatDateToISO(new Date()) : new Date().toISOString().split('T')[0];
+    }
+    modal.classList.add('active');
+  }
 }
+
 function closeExpenseModal() {
-  document.getElementById('modal-expense').classList.remove('active');
+  const modal = document.getElementById('modal-expense');
+  if (modal) {
+    modal.classList.remove('active');
+  }
 }
+
 function handleNewExpenseSubmit(event) {
   event.preventDefault();
   const form = event.target;
-  const descripcion = form.descripcion.value;
-  const monto = parseInt(form.monto.value) || 0;
+  const descripcion = form.descripcion.value.trim();
+  const fecha = (form.fecha && form.fecha.value) ? form.fecha.value : ((typeof formatDateToISO === 'function') ? formatDateToISO(new Date()) : new Date().toISOString().split('T')[0]);
+  const monto = parseInt(form.monto.value, 10) || 0;
   const categoria = form.categoria.value;
   const pagado_por = form.pagado_por.value;
   const tipo_gasto = form.tipo_gasto.value;
 
   if (!descripcion || monto <= 0) {
-    alert('Por favor completa los campos requeridos');
+    alert('Por favor completa todos los campos requeridos con un monto válido.');
     return;
   }
 
@@ -202,11 +269,16 @@ function handleNewExpenseSubmit(event) {
     categoria,
     pagado_por,
     tipo_gasto,
-    fecha: new Date().toISOString().split('T')[0]
+    fecha
   };
+
+  // Determine expense month key (YYYY-MM)
+  const expenseMonthKey = fecha.substring(0, 7);
 
   state.set(current => ({
     ...current,
+    selectedMonth: expenseMonthKey,
+    currentMonth: (typeof getMonthLabel === 'function') ? getMonthLabel(expenseMonthKey) : expenseMonthKey,
     expenses: [newExpense, ...current.expenses]
   }));
 
@@ -231,17 +303,29 @@ function handleNewExpenseSubmit(event) {
 
 // 2. Debt Modal Handlers
 function openDebtModal() {
-  document.getElementById('modal-debt').classList.add('active');
+  const modal = document.getElementById('modal-debt');
+  if (modal) {
+    const dueInput = modal.querySelector('input[name="dueDate"]');
+    if (dueInput && !dueInput.value) {
+      dueInput.value = (typeof formatDateToISO === 'function') ? formatDateToISO(new Date()) : new Date().toISOString().split('T')[0];
+    }
+    modal.classList.add('active');
+  }
 }
+
 function closeDebtModal() {
-  document.getElementById('modal-debt').classList.remove('active');
+  const modal = document.getElementById('modal-debt');
+  if (modal) {
+    modal.classList.remove('active');
+  }
 }
+
 function handleNewDebtSubmit(event) {
   event.preventDefault();
   const form = event.target;
-  const concept = form.concept.value;
-  const amount = parseInt(form.amount.value) || 0;
-  const dueDate = form.dueDate.value;
+  const concept = form.concept.value.trim();
+  const amount = parseInt(form.amount.value, 10) || 0;
+  const dueDate = form.dueDate.value || ((typeof formatDateToISO === 'function') ? formatDateToISO(new Date()) : new Date().toISOString().split('T')[0]);
   const type = form.type.value;
 
   if (!concept || amount <= 0) return;
@@ -250,7 +334,7 @@ function handleNewDebtSubmit(event) {
     id: Date.now(),
     concept,
     amount,
-    dueDate: dueDate || '2026-10-15',
+    dueDate,
     type,
     status: 'pendiente'
   };

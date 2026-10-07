@@ -1,21 +1,23 @@
 /* ==========================================================================
-   HOUSEHOLD - Central State Management & Mock Data Preload
+   HOUSEHOLD - Central State Management & Live Supabase Integration
+   Clean Data Engine (Zero Burned/Mock Figures)
    ========================================================================== */
 
 const INITIAL_STATE = {
   activeTab: 'dashboard',
-  currentMonth: 'Septiembre 2026',
+  selectedMonth: (typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10',
+  currentMonth: (typeof getMonthLabel === 'function') ? getMonthLabel((typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10') : 'Octubre 2026',
 
-  // Couple Profile & Incomes
+  // Couple Profile & Incomes (Fran and Yox)
   userA: { id: 'person_a', name: 'Fran', income: 3500000, color: '#f472b6' },
   userB: { id: 'person_b', name: 'Yox', income: 2500000, color: '#8b5cf6' },
 
-  // Motivation & Gamification
+  // Motivation & Gamification (Real metrics)
   quote: "Cada peso que cuidamos nos acerca a lo que queremos. ❤️",
-  savingsStreak: 12,
-  couplePoints: 1250,
+  savingsStreak: 0,
+  couplePoints: 0,
 
-  // Budget Limits by Category
+  // Budget Limits by Category (Base targets, real spent computed from expenses)
   categoryBudgets: {
     'Arriendo': 900000,
     'Servicios': 250000,
@@ -27,106 +29,96 @@ const INITIAL_STATE = {
     'Entretenimiento': 150000
   },
 
-  // Registered Expenses (Explicit Payer and Type)
-  expenses: [
-    { id: 1, categoria: 'Arriendo', descripcion: 'Pago del apartamento', monto: 900000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-01' },
-    { id: 2, categoria: 'Mercado', descripcion: 'Mercado principal Éxito', monto: 500000, pagado_por: 'person_b', tipo_gasto: 'compartido', fecha: '2026-09-05' },
-    { id: 3, categoria: 'Servicios', descripcion: 'Luz y agua EPM', monto: 210000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-08' },
-    { id: 4, categoria: 'Transporte', descripcion: 'Gasolina carro', monto: 140000, pagado_por: 'person_b', tipo_gasto: 'compartido', fecha: '2026-09-12' },
-    { id: 5, categoria: 'Comida fuera', descripcion: 'Cena de aniversario', monto: 120000, pagado_por: 'person_a', tipo_gasto: 'compartido', fecha: '2026-09-15' },
-    { id: 6, categoria: 'Gastos personales', descripcion: 'Ropa personal Fran', monto: 150000, pagado_por: 'person_a', tipo_gasto: 'personal_a', fecha: '2026-09-18' },
-    { id: 7, categoria: 'Gastos personales', descripcion: 'Maquillaje y cuidado Yox', monto: 110000, pagado_por: 'person_b', tipo_gasto: 'personal_b', fecha: '2026-09-20' }
-  ],
+  // Registered Expenses (Clean array, zero burned data)
+  expenses: [],
 
-  // Smart Market List
+  // Smart Market List (Clean array, zero burned data)
   market: {
-    budget: 250000,
-    items: [
-      { id: 101, name: 'Arroz 5kg', price: 22000, category: 'Despensa', checked: true },
-      { id: 102, name: 'Panal de Huevos (30)', price: 18500, category: 'Despensa', checked: true },
-      { id: 103, name: 'Pechuga de Pollo 2kg', price: 34000, category: 'Carnes', checked: true },
-      { id: 104, name: 'Leche Alquería (6 pack)', price: 28000, category: 'Lácteos', checked: true },
-      { id: 105, name: 'Verduras variadas y frutas', price: 45000, category: 'Verduras', checked: true },
-      { id: 106, name: 'Detergente + Suavizante Aseo', price: 42000, category: 'Aseo', checked: true },
-      { id: 107, name: 'Café molido especial', price: 19000, category: 'Despensa', checked: false },
-      { id: 108, name: 'Aceite de Oliva', price: 29000, category: 'Despensa', checked: false }
-    ]
+    budget: 0,
+    items: []
   },
 
-  // Savings Goals
-  savingsGoals: [
-    { id: 201, title: 'Comprar nuestra casa 🏠', current: 2450000, target: 10000000, icon: '🏠' },
-    { id: 202, title: 'Fondo de emergencia 🆘', current: 1800000, target: 3000000, icon: '🆘' },
-    { id: 203, title: 'Viaje a la playa ✈️', current: 900000, target: 2500000, icon: '✈️' },
-    { id: 204, title: 'Renovar muebles sala 🛋️', current: 400000, target: 1500000, icon: '🛋️' }
-  ],
+  // Savings Goals (Clean array, zero burned data)
+  savingsGoals: [],
 
-  // Debts & Pending Payments
-  debts: [
-    { id: 301, concept: 'Cuota administración apto', amount: 180000, dueDate: '2026-10-05', type: 'Servicio', status: 'pendiente' },
-    { id: 302, concept: 'Internet de la casa', amount: 115000, dueDate: '2026-10-07', type: 'Servicio', status: 'pendiente' },
-    { id: 303, concept: 'Préstamo entre nosotros (Cena previa)', amount: 50000, dueDate: '2026-10-10', type: 'Pareja', status: 'pendiente' }
-  ],
+  // Debts & Pending Payments (Clean array, zero burned data)
+  debts: [],
 
-  // Financial Calendar Recurring Payments
-  calendarPayments: [
-    { day: 1, title: 'Pago del Arriendo 🏠', amount: 900000, status: 'paid' },
-    { day: 5, title: 'Servicio de Internet 📶', amount: 115000, status: 'pending' },
-    { day: 10, title: 'Mercado Principal 🛒', amount: 500000, status: 'pending' },
-    { day: 15, title: 'Pago de Servicios (Luz/Agua) 💡', amount: 210000, status: 'pending' }
-  ],
+  // Financial Calendar Recurring Payments (Clean array, zero burned data)
+  calendarPayments: [],
 
-  // Life Goals (Non-financial)
-  lifeGoals: [
-    { id: 401, title: 'Mudarnos al nuevo apartamento', completed: true, date: 'Mayo 2026' },
-    { id: 402, title: 'Ahorrar $10 millones juntos', completed: false, progress: 24 },
-    { id: 403, title: 'Viajar juntos al mar', completed: false, progress: 36 },
-    { id: 404, title: 'Crear nuestro emprendimiento', completed: false, progress: 10 }
-  ],
+  // Life Goals (Clean array, zero burned data)
+  lifeGoals: [],
 
   // Achievements & Trophies
-  achievements: [
-    { title: 'Primer mes viviendo juntos 🏆', date: 'Mayo 2026', icon: '🔑' },
-    { title: 'Primer $1.000.000 ahorrado 🏆', date: 'Julio 2026', icon: '💰' },
-    { title: 'Mes sin exceder presupuesto 🏆', date: 'Agosto 2026', icon: '🎯' },
-    { title: 'Racha de 10 días ordenados 🏆', date: 'Septiembre 2026', icon: '🔥' }
-  ],
+  achievements: [],
 
-  // Memories Album
-  memories: [
-    { 
-      id: 501, 
-      title: 'Primera compra para la casa 🛋️', 
-      date: '15 Mayo 2026', 
-      desc: 'El día que compramos el primer juego de sábanas y los platos del hogar.', 
-      emoji: '🏠',
-      image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80'
-    },
-    { 
-      id: 502, 
-      title: 'Primer mercado juntos 🛒', 
-      date: '20 Mayo 2026', 
-      desc: 'Llenamos el carrito por primera vez sin saber cuánto pollo comprar.', 
-      emoji: '🛒',
-      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'
-    }
-  ]
+  // Memories Album (Clean array, zero burned data)
+  memories: []
 };
 
 // Global reactive State Proxy with LocalStorage & Supabase Realtime Sync
 class StateManager {
   constructor() {
+    const STATE_VERSION = 'household_v5_live_clean';
+    const savedVersion = localStorage.getItem('household_state_version');
     const saved = localStorage.getItem('household_state');
+    
+    let loadedState = null;
+    const currentRealMonthKey = (typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10';
+
     if (saved) {
       try {
-        this.data = { ...INITIAL_STATE, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        if (savedVersion === STATE_VERSION) {
+          loadedState = { ...INITIAL_STATE, ...parsed };
+        } else {
+          // Migration from previous mock state:
+          // Preserve custom incomes if modified by the user
+          const incomeA = (parsed.userA && typeof parsed.userA.income === 'number') ? parsed.userA.income : INITIAL_STATE.userA.income;
+          const incomeB = (parsed.userB && typeof parsed.userB.income === 'number') ? parsed.userB.income : INITIAL_STATE.userB.income;
+
+          // Check if expenses were the dummy mock ones (IDs 1..7)
+          const isMockExpenses = Array.isArray(parsed.expenses) && parsed.expenses.some(e => e.id <= 7 && e.fecha && e.fecha.startsWith('2026-09'));
+
+          loadedState = {
+            ...INITIAL_STATE,
+            userA: { ...INITIAL_STATE.userA, income: incomeA },
+            userB: { ...INITIAL_STATE.userB, income: incomeB },
+            expenses: isMockExpenses ? [] : (Array.isArray(parsed.expenses) ? parsed.expenses : []),
+            debts: (Array.isArray(parsed.debts) && parsed.debts.some(d => d.id === 301)) ? [] : (parsed.debts || []),
+            market: {
+              budget: (parsed.market && parsed.market.items && parsed.market.items.some(i => i.id === 101)) ? 0 : (parsed.market?.budget || 0),
+              items: (parsed.market && parsed.market.items && parsed.market.items.some(i => i.id === 101)) ? [] : (parsed.market?.items || [])
+            },
+            savingsGoals: (Array.isArray(parsed.savingsGoals) && parsed.savingsGoals.some(g => g.id === 201)) ? [] : (parsed.savingsGoals || []),
+            memories: (Array.isArray(parsed.memories) && parsed.memories.some(m => m.id === 501)) ? [] : (parsed.memories || []),
+            calendarPayments: [],
+            lifeGoals: [],
+            achievements: [],
+            savingsStreak: 0,
+            couplePoints: 0,
+            selectedMonth: currentRealMonthKey,
+            currentMonth: (typeof getMonthLabel === 'function') ? getMonthLabel(currentRealMonthKey) : 'Octubre 2026'
+          };
+          localStorage.setItem('household_state_version', STATE_VERSION);
+        }
       } catch (e) {
-        this.data = INITIAL_STATE;
+        loadedState = INITIAL_STATE;
+        localStorage.setItem('household_state_version', STATE_VERSION);
       }
     } else {
-      this.data = INITIAL_STATE;
-      localStorage.setItem('household_state', JSON.stringify(this.data));
+      loadedState = INITIAL_STATE;
+      localStorage.setItem('household_state_version', STATE_VERSION);
     }
+
+    if (!loadedState.selectedMonth) {
+      loadedState.selectedMonth = currentRealMonthKey;
+    }
+    loadedState.currentMonth = (typeof getMonthLabel === 'function') ? getMonthLabel(loadedState.selectedMonth) : 'Octubre 2026';
+
+    this.data = loadedState;
+    localStorage.setItem('household_state', JSON.stringify(this.data));
     this.listeners = [];
     this._realtimeChannel = null;
   }
@@ -141,6 +133,12 @@ class StateManager {
     } else {
       this.data = { ...this.data, ...updater };
     }
+
+    // Keep currentMonth label always synced with selectedMonth
+    if (this.data.selectedMonth && typeof getMonthLabel === 'function') {
+      this.data.currentMonth = getMonthLabel(this.data.selectedMonth);
+    }
+
     localStorage.setItem('household_state', JSON.stringify(this.data));
     this.notify();
   }
@@ -161,8 +159,8 @@ class StateManager {
     if (!sb) return;
 
     try {
-      // 1. Fetch expenses
-      const { data: expenses } = await sb.from('expenses').select('*').order('id', { ascending: false });
+      // 1. Fetch expenses (order by date descending)
+      const { data: expenses } = await sb.from('expenses').select('*').order('fecha', { ascending: false });
       // 2. Fetch debts
       const { data: debts } = await sb.from('debts').select('*').order('id', { ascending: false });
       // 3. Fetch savings_goals
@@ -178,19 +176,19 @@ class StateManager {
         const { data: settings } = await sb.from('household_settings').select('*').eq('id', 'incomes').maybeSingle();
         if (settings && settings.data) customIncomes = settings.data;
       } catch (e) {
-        // Table may not exist yet, fallback to localStorage
+        // Table may not exist yet, fallback to state
       }
 
       this.set(current => ({
         ...current,
-        expenses: (expenses && expenses.length > 0) ? expenses : current.expenses,
-        debts: (debts && debts.length > 0) ? debts.map(d => ({ ...d, dueDate: d.due_date || d.dueDate })) : current.debts,
-        savingsGoals: (savings && savings.length > 0) ? savings : current.savingsGoals,
+        expenses: Array.isArray(expenses) ? expenses : current.expenses,
+        debts: Array.isArray(debts) ? debts.map(d => ({ ...d, dueDate: d.due_date || d.dueDate })) : current.debts,
+        savingsGoals: Array.isArray(savings) ? savings : current.savingsGoals,
         market: {
           ...current.market,
-          items: (marketItems && marketItems.length > 0) ? marketItems : current.market.items
+          items: Array.isArray(marketItems) ? marketItems : current.market.items
         },
-        memories: (memories && memories.length > 0) ? memories.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) : current.memories,
+        memories: Array.isArray(memories) ? memories.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) : current.memories,
         userA: (customIncomes && customIncomes.incomeA !== undefined) ? { ...current.userA, income: customIncomes.incomeA } : current.userA,
         userB: (customIncomes && customIncomes.incomeB !== undefined) ? { ...current.userB, income: customIncomes.incomeB } : current.userB
       }));
@@ -206,24 +204,24 @@ class StateManager {
     if (this._realtimeChannel) return;
     this._realtimeChannel = sb.channel('household-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, async () => {
-        const { data } = await sb.from('expenses').select('*').order('id', { ascending: false });
-        if (data) this.set(c => ({ ...c, expenses: data }));
+        const { data } = await sb.from('expenses').select('*').order('fecha', { ascending: false });
+        if (Array.isArray(data)) this.set(c => ({ ...c, expenses: data }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'debts' }, async () => {
         const { data } = await sb.from('debts').select('*').order('id', { ascending: false });
-        if (data) this.set(c => ({ ...c, debts: data.map(d => ({ ...d, dueDate: d.due_date || d.dueDate })) }));
+        if (Array.isArray(data)) this.set(c => ({ ...c, debts: data.map(d => ({ ...d, dueDate: d.due_date || d.dueDate })) }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'savings_goals' }, async () => {
         const { data } = await sb.from('savings_goals').select('*').order('id', { ascending: true });
-        if (data) this.set(c => ({ ...c, savingsGoals: data }));
+        if (Array.isArray(data)) this.set(c => ({ ...c, savingsGoals: data }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'market_items' }, async () => {
         const { data } = await sb.from('market_items').select('*').order('id', { ascending: true });
-        if (data) this.set(c => ({ ...c, market: { ...c.market, items: data } }));
+        if (Array.isArray(data)) this.set(c => ({ ...c, market: { ...c.market, items: data } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'memories' }, async () => {
         const { data } = await sb.from('memories').select('*').order('id', { ascending: false });
-        if (data) this.set(c => ({ ...c, memories: data.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) }));
+        if (Array.isArray(data)) this.set(c => ({ ...c, memories: data.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'household_settings' }, async (payload) => {
         if (payload.new && payload.new.id === 'incomes' && payload.new.data) {

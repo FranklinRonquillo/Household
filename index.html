@@ -69,7 +69,7 @@
       <header class="top-header">
         <div class="header-welcome">
           <h1>🏠 Nuestro Hogar</h1>
-          <div class="header-quote">Septiembre · 2026</div>
+          <div class="header-quote" id="header-current-month-label">Octubre · 2026 (Mes Actual)</div>
         </div>
 
         <div class="header-actions">
@@ -82,9 +82,22 @@
             </span>
             <span class="theme-current-dot" id="theme-current-dot" title="Color actual"></span>
           </button>
-          <div class="month-selector">
-            <span>📅 Septiembre 2026</span>
+          
+          <!-- Interactive Month Selector & Time Travel Controls -->
+          <div class="month-selector-wrapper">
+            <button class="month-nav-btn" onclick="navigateMonth(-1)" title="Mes anterior" aria-label="Mes anterior">◀</button>
+            <div class="month-selector">
+              <span class="month-icon">📅</span>
+              <select id="header-month-select" onchange="onMonthSelectChange(event)" aria-label="Seleccionar mes para ver historial">
+                <!-- Dynamically rendered -->
+              </select>
+            </div>
+            <button class="month-nav-btn" onclick="navigateMonth(1)" title="Mes siguiente" aria-label="Mes siguiente">▶</button>
+            <button class="btn btn-secondary btn-sm" id="btn-today-month" onclick="goToCurrentMonth()" style="display: none; padding: 0.25rem 0.55rem; font-size: 0.72rem;" title="Volver al mes actual">
+              ⚡ Hoy
+            </button>
           </div>
+
           <button class="btn btn-primary btn-sm" id="top-add-expense-btn" onclick="openExpenseModal()" style="display: none;">
             + Nuevo Gasto
           </button>
@@ -190,6 +203,10 @@
         <div class="form-group">
           <label class="form-label">Descripción del gasto</label>
           <input type="text" name="descripcion" class="form-input" placeholder="ej: Mercado semanal, Arriendo, Salida a cenar" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha del gasto</label>
+          <input type="date" name="fecha" id="expense-date" class="form-input" required>
         </div>
         <div class="form-group">
           <label class="form-label">Monto (COP)</label>

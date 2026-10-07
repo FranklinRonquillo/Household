@@ -22,14 +22,14 @@ function getSupabase() {
 }
 
 // Global formatters
-const formatCurrency = (amount) => {
+function formatCurrency(amount) {
   return new Intl.NumberFormat(CONFIG.LOCALE, {
     style: 'currency',
     currency: 'COP',
     maximumFractionDigits: 0
   }).format(amount || 0);
-};
+}
 
-const formatPercent = (value) => {
+function formatPercent(value) {
   return `${(value || 0).toFixed(1)}%`;
-};
+}

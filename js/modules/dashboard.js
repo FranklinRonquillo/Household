@@ -1,37 +1,96 @@
 /* ==========================================================================
    HOUSEHOLD - Dashboard Module Renderer ("Nuestra Casa")
+   Dynamic Monthly View & Historical Comparison (Zero Hardcoded Data)
    ========================================================================== */
 
 function renderDashboardModule(appState) {
-  const { userA, userB, expenses, savingsGoals, quote, savingsStreak, couplePoints } = appState;
+  const { userA, userB, expenses, savingsGoals, quote, savingsStreak } = appState;
   
-  // Math calculations
-  const split = calculateProportionalSplit(userA.income, userB.income, expenses);
-  const totalIncome = userA.income + userB.income;
+  // Dynamic Month Determination
+  const currentRealKey = (typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10';
+  const selectedMonthKey = appState.selectedMonth || currentRealKey;
+  const monthLabel = (typeof getMonthLabel === 'function') ? getMonthLabel(selectedMonthKey) : 'Octubre 2026';
+  const isViewingCurrentMonth = selectedMonthKey === currentRealKey;
+
+  // Filter expenses strictly for the selected viewing month
+  const monthExpenses = (typeof filterExpensesByMonth === 'function') 
+    ? filterExpensesByMonth(expenses, selectedMonthKey) 
+    : expenses;
+
+  // Real financial math calculations
+  const totalIncome = (Number(userA.income) || 0) + (Number(userB.income) || 0);
+  const split = calculateProportionalSplit(userA.income, userB.income, monthExpenses);
+  const totalExpenses = monthExpenses.reduce((sum, item) => sum + (Number(item.monto) || 0), 0);
   
-  // Total Expenses
-  const totalExpenses = expenses.reduce((sum, item) => sum + item.monto, 0);
-  
-  // Personal Expenses Breakdown
-  const personalA = expenses.filter(i => i.tipo_gasto === 'personal_a').reduce((sum, i) => sum + i.monto, 0);
-  const personalB = expenses.filter(i => i.tipo_gasto === 'personal_b').reduce((sum, i) => sum + i.monto, 0);
+  // Personal Expenses Breakdown for selected month
+  const personalA = monthExpenses.filter(i => i.tipo_gasto === 'personal_a').reduce((sum, i) => sum + (Number(i.monto) || 0), 0);
+  const personalB = monthExpenses.filter(i => i.tipo_gasto === 'personal_b').reduce((sum, i) => sum + (Number(i.monto) || 0), 0);
 
   // Free Individual Disposable Money
   const freeMoneyA = Math.max(0, userA.income - split.dueA - personalA);
   const freeMoneyB = Math.max(0, userB.income - split.dueB - personalB);
 
-  // Total Savings this month
-  const mainGoal = savingsGoals[0] || { current: 0, target: 10000000 };
-  const monthlySavings = 400000;
-  
-  // Available Money = Total Income - Total Expenses - Monthly Savings
-  const availableMoney = Math.max(0, totalIncome - totalExpenses - monthlySavings);
+  // Real Savings Goals Accumulation
+  const totalSavedGoals = (savingsGoals || []).reduce((sum, g) => sum + (Number(g.current) || 0), 0);
+  const mainGoal = savingsGoals && savingsGoals.length > 0 ? savingsGoals[0] : null;
+
+  // Available Money = Total Income - Total Expenses of the month
+  const availableMoney = Math.max(0, totalIncome - totalExpenses);
   
   // Spend Percentage
   const spendPercent = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+
+  // Dynamic Couple Points
+  const couplePoints = (typeof calculateCouplePoints === 'function') ? calculateCouplePoints(appState) : 0;
+
+  // Monthly History List (Show recent 5 months for comparison)
+  const historyMonthKeys = (typeof getAvailableMonthKeys === 'function')
+    ? getAvailableMonthKeys(expenses, 5).slice(0, 5)
+    : [currentRealKey];
+
+  // Previous month for real comparison
+  const prevMonthKey = (typeof shiftMonthKey === 'function') ? shiftMonthKey(selectedMonthKey, -1) : null;
+  const prevMonthExpenses = prevMonthKey ? filterExpensesByMonth(expenses, prevMonthKey) : [];
+  const prevMonthTotal = prevMonthExpenses.reduce((sum, item) => sum + (Number(item.monto) || 0), 0);
   
+  let comparisonNote = '';
+  if (prevMonthTotal > 0 && totalExpenses > 0) {
+    const diff = prevMonthTotal - totalExpenses;
+    if (diff > 0) {
+      comparisonNote = `📉 ¡En ${monthLabel} gastaron ${formatCurrency(diff)} menos que en ${getMonthLabel(prevMonthKey)}! 🎉`;
+    } else if (diff < 0) {
+      comparisonNote = `📈 En ${monthLabel} los gastos han sido ${formatCurrency(Math.abs(diff))} más que en ${getMonthLabel(prevMonthKey)}.`;
+    } else {
+      comparisonNote = `⚖️ Mismo nivel de gastos que el mes anterior.`;
+    }
+  } else if (monthExpenses.length === 0) {
+    comparisonNote = `💡 Aún no hay gastos registrados en ${monthLabel}. Empiecen agregando el primero.`;
+  } else {
+    comparisonNote = `📊 ${monthExpenses.length} gasto(s) registrado(s) en ${monthLabel}.`;
+  }
+
   return `
     <div class="fade-in">
+      ${!isViewingCurrentMonth ? `
+        <!-- Historical Month Banner Notice -->
+        <div class="glass-card" style="margin-bottom: 1.25rem; border: 1px solid var(--border-accent); background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(168, 85, 247, 0.08)); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span style="font-size: 1.35rem;">📜</span>
+            <div>
+              <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main);">
+                Visualizando Historial: <strong>${monthLabel}</strong>
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">
+                Todos los aportes, saldos y gastos corresponden a este mes pasado.
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="goToCurrentMonth()" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+            ⚡ Volver al Mes Actual
+          </button>
+        </div>
+      ` : ''}
+
       <!-- Top Quote & Motivation Banner -->
       <div class="glass-card split-card" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
@@ -53,7 +112,7 @@ function renderDashboardModule(appState) {
       <!-- Main Financial Summary Grid -->
       <div class="dashboard-grid">
         <div class="glass-card stat-widget">
-          <span class="stat-label">💰 Disponible este mes</span>
+          <span class="stat-label">💰 Disponible ${isViewingCurrentMonth ? 'este mes' : 'en ' + monthLabel}</span>
           <span class="stat-value primary">${formatCurrency(availableMoney)}</span>
           <span style="font-size: 0.75rem; color: var(--text-muted);">Restante seguro para el hogar</span>
         </div>
@@ -76,9 +135,11 @@ function renderDashboardModule(appState) {
         </div>
 
         <div class="glass-card stat-widget">
-          <span class="stat-label">💵 Ahorro acumulado</span>
-          <span class="stat-value savings">${formatCurrency(mainGoal.current)}</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Meta Casa: ${formatCurrency(mainGoal.target)}</span>
+          <span class="stat-label">💵 Ahorro en Metas</span>
+          <span class="stat-value savings">${formatCurrency(totalSavedGoals)}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">
+            ${mainGoal ? `${mainGoal.title}: ${formatCurrency(mainGoal.current)}` : 'Sin metas activas aún'}
+          </span>
         </div>
       </div>
 
@@ -110,16 +171,16 @@ function renderDashboardModule(appState) {
         </div>
       </div>
 
-      <!-- Proportional Split & Monthly Comparison Grid -->
+      <!-- Proportional Split & Monthly History Grid -->
       <div class="dashboard-sections-grid" style="margin-bottom: 1.5rem;">
         <!-- Left: Proportional Split Widget -->
         <div class="glass-card">
           <div class="glass-card-header">
-            <span class="glass-card-title">⚖️ Aportes Proporcionales (Según Sueldos)</span>
+            <span class="glass-card-title">⚖️ Aportes Proporcionales (${monthLabel})</span>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
               <span class="badge badge-purple">Automatizado</span>
               <button class="btn btn-secondary btn-sm" onclick="openIncomeModal()" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;">
-                💰 Ajustar Sueldos
+                💰 Sueldos
               </button>
             </div>
           </div>
@@ -163,46 +224,60 @@ function renderDashboardModule(appState) {
           </div>
         </div>
 
-        <!-- Right: Monthly Historical Comparison -->
+        <!-- Right: Real Dynamic Monthly History & Navigation -->
         <div class="glass-card">
           <div class="glass-card-header">
-            <span class="glass-card-title">📈 Comparativa de Meses</span>
-            <span class="badge badge-success">📉 -12% este mes</span>
+            <span class="glass-card-title">📜 Historial de Meses</span>
+            <span class="badge ${monthExpenses.length > 0 ? 'badge-success' : 'badge-purple'}">
+              ${monthExpenses.length} Gastos en ${monthLabel}
+            </span>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
-                <span>Septiembre 2026 (Actual)</span>
-                <span style="color: var(--expense-color);">${formatCurrency(totalExpenses)}</span>
-              </div>
-              <div class="progress-bar-container" style="margin-top: 0.4rem;">
-                <div class="progress-bar-fill warning" style="width: 65%;"></div>
-              </div>
-            </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+            Haz clic en cualquier mes para viajar en el tiempo y consultar sus cifras reales:
+          </p>
 
-            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
-                <span>Agosto 2026</span>
-                <span style="color: var(--text-muted);">${formatCurrency(2470000)}</span>
-              </div>
-              <div class="progress-bar-container" style="margin-top: 0.4rem;">
-                <div class="progress-bar-fill danger" style="width: 78%;"></div>
-              </div>
-            </div>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            ${historyMonthKeys.map(mKey => {
+              const mExpenses = filterExpensesByMonth(expenses, mKey);
+              const mTotal = mExpenses.reduce((sum, item) => sum + (Number(item.monto) || 0), 0);
+              const mLabel = getMonthLabel(mKey);
+              const isSelected = mKey === selectedMonthKey;
+              const isReal = mKey === currentRealKey;
+              const barWidth = totalIncome > 0 ? Math.min(100, Math.round((mTotal / totalIncome) * 100)) : 0;
 
-            <div style="padding: 0.75rem; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600;">
-                <span>Julio 2026</span>
-                <span style="color: var(--text-muted);">${formatCurrency(2650000)}</span>
-              </div>
-              <div class="progress-bar-container" style="margin-top: 0.4rem;">
-                <div class="progress-bar-fill danger" style="width: 84%;"></div>
-              </div>
-            </div>
+              return `
+                <div 
+                  class="history-month-row ${isSelected ? 'active-history-month' : ''}" 
+                  onclick="changeSelectedMonth('${mKey}')"
+                  style="padding: 0.75rem; background: ${isSelected ? 'rgba(var(--primary-rgb, 236, 72, 153), 0.12)' : 'var(--bg-glass)'}; border-radius: var(--radius-md); border: 1px solid ${isSelected ? 'var(--primary)' : 'var(--border-glass)'}; cursor: pointer; transition: all var(--transition-fast);"
+                  title="Ver datos de ${mLabel}"
+                >
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                      <span>${mLabel}</span>
+                      ${isReal ? '<span class="badge badge-purple" style="font-size: 0.65rem; padding: 1px 6px;">Actual</span>' : ''}
+                      ${isSelected ? '<span class="badge badge-success" style="font-size: 0.65rem; padding: 1px 6px;">👁️ Viendo</span>' : ''}
+                    </div>
+                    <span style="font-weight: 700; color: ${mTotal > 0 ? 'var(--expense-color)' : 'var(--text-muted)'};">
+                      ${formatCurrency(mTotal)}
+                    </span>
+                  </div>
+                  
+                  <div class="progress-bar-container" style="margin-top: 0.35rem; height: 5px;">
+                    <div class="progress-bar-fill ${barWidth > 80 ? 'danger' : barWidth > 50 ? 'warning' : 'success'}" style="width: ${barWidth}%;"></div>
+                  </div>
 
-            <div style="font-size: 0.8rem; color: var(--income-color); font-weight: 600; text-align: center; margin-top: 0.25rem;">
-              📉 ¡Este mes gastaron $250.000 menos que el anterior! 🎉
+                  <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem;">
+                    <span>${mExpenses.length} registro(s)</span>
+                    <span style="color: var(--primary); font-weight: 500;">${isSelected ? 'Seleccionado' : 'Ver detalle ➔'}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+
+            <div style="font-size: 0.8rem; color: var(--income-color); font-weight: 600; text-align: center; margin-top: 0.35rem;">
+              ${comparisonNote}
             </div>
           </div>
         </div>
