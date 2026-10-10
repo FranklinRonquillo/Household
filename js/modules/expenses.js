@@ -84,7 +84,18 @@ function renderExpensesModule(appState) {
 
       <!-- Categories & Budget Semaphores for the Selected Month -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-        <h3 style="font-size: 1.1rem;">📊 Presupuesto por Categoría (${monthLabel})</h3>
+        <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+          <h3 style="font-size: 1.1rem; margin: 0;">📊 Presupuesto por Categoría (${monthLabel})</h3>
+          <button 
+            type="button" 
+            class="btn btn-secondary btn-sm" 
+            onclick="openCategoryBudgetsModal()" 
+            style="font-size: 0.72rem; padding: 3px 9px; gap: 4px;"
+            title="Ajustar límites de gasto por categoría o agregar nuevas categorías"
+          >
+            ✏️ Modificar Presupuestos
+          </button>
+        </div>
         <span style="font-size: 0.8rem; color: var(--text-muted);">
           Total gastado: <strong style="color: var(--expense-color);">${formatCurrency(totalMonthExpenses)}</strong>
         </span>
@@ -96,12 +107,28 @@ function renderExpensesModule(appState) {
           const limit = categoryBudgets[catName];
           const sem = getBudgetSemaphor(spent, limit);
           return `
-            <div class="glass-card">
+            <div class="glass-card" style="position: relative;">
               <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
-                <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">${catName}</span>
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">${catName}</span>
+                  <button 
+                    type="button" 
+                    onclick="openCategoryBudgetsModal('${catName}')" 
+                    title="Editar presupuesto de ${catName}" 
+                    style="background: transparent; border: none; cursor: pointer; font-size: 0.75rem; opacity: 0.7; padding: 0 3px; transition: opacity 0.2s;"
+                    onmouseover="this.style.opacity='1'" 
+                    onmouseout="this.style.opacity='0.7'"
+                  >
+                    ✏️
+                  </button>
+                </div>
                 <span class="badge ${sem.class}">${sem.label}</span>
               </div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; word-break: break-all;">
+              <div 
+                style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; word-break: break-all; cursor: pointer;"
+                onclick="openCategoryBudgetsModal('${catName}')"
+                title="Haz clic para modificar el presupuesto de ${catName}"
+              >
                 ${formatCurrency(spent)} <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">/ ${formatCurrency(limit)}</span>
               </div>
               <div class="progress-bar-container">

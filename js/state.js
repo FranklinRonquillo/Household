@@ -93,6 +93,7 @@ class StateManager {
             },
             savingsGoals: (Array.isArray(parsed.savingsGoals) && parsed.savingsGoals.some(g => g.id === 201)) ? [] : (parsed.savingsGoals || []),
             memories: (Array.isArray(parsed.memories) && parsed.memories.some(m => m.id === 501)) ? [] : (parsed.memories || []),
+            categoryBudgets: (parsed.categoryBudgets && typeof parsed.categoryBudgets === 'object') ? parsed.categoryBudgets : INITIAL_STATE.categoryBudgets,
             calendarPayments: [],
             lifeGoals: [],
             achievements: [],
@@ -170,11 +171,14 @@ class StateManager {
       // 5. Fetch memories
       const { data: memories } = await sb.from('memories').select('*').order('id', { ascending: false });
 
-      // 6. Fetch custom incomes if household_settings exists
+      // 6. Fetch custom settings (incomes & category_budgets) if household_settings exists
       let customIncomes = null;
+      let customBudgets = null;
       try {
-        const { data: settings } = await sb.from('household_settings').select('*').eq('id', 'incomes').maybeSingle();
-        if (settings && settings.data) customIncomes = settings.data;
+        const { data: incSettings } = await sb.from('household_settings').select('*').eq('id', 'incomes').maybeSingle();
+        if (incSettings && incSettings.data) customIncomes = incSettings.data;
+        const { data: bSettings } = await sb.from('household_settings').select('*').eq('id', 'category_budgets').maybeSingle();
+        if (bSettings && bSettings.data) customBudgets = bSettings.data;
       } catch (e) {
         // Table may not exist yet, fallback to state
       }
@@ -190,7 +194,8 @@ class StateManager {
         },
         memories: Array.isArray(memories) ? memories.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) : current.memories,
         userA: (customIncomes && customIncomes.incomeA !== undefined) ? { ...current.userA, income: customIncomes.incomeA } : current.userA,
-        userB: (customIncomes && customIncomes.incomeB !== undefined) ? { ...current.userB, income: customIncomes.incomeB } : current.userB
+        userB: (customIncomes && customIncomes.incomeB !== undefined) ? { ...current.userB, income: customIncomes.incomeB } : current.userB,
+        categoryBudgets: (customBudgets && typeof customBudgets === 'object' && Object.keys(customBudgets).length > 0) ? customBudgets : current.categoryBudgets
       }));
 
       // Setup Realtime live syncing
@@ -229,6 +234,12 @@ class StateManager {
             ...c,
             userA: { ...c.userA, income: payload.new.data.incomeA },
             userB: { ...c.userB, income: payload.new.data.incomeB }
+          }));
+        }
+        if (payload.new && payload.new.id === 'category_budgets' && payload.new.data) {
+          this.set(c => ({
+            ...c,
+            categoryBudgets: payload.new.data
           }));
         }
       })

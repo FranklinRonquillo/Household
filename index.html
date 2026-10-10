@@ -214,7 +214,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Categoría</label>
-          <select name="categoria" class="form-select">
+          <select name="categoria" id="expense-category-select" class="form-select">
             <option value="Arriendo">🏠 Arriendo</option>
             <option value="Servicios">💡 Servicios</option>
             <option value="Mercado">🛒 Mercado</option>
@@ -286,25 +286,29 @@
     </div>
   </div>
 
-  <!-- 3. Add Market Item Modal -->
-  <div class="modal-overlay" id="modal-market">
+  <!-- 3. Add / Edit Market Item Modal -->
+  <div class="modal-overlay" id="modal-market" onclick="if(event.target === this) closeMarketModal()">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 style="font-size: 1.1rem;">🛒 Agregar Producto al Mercado</h3>
+        <h3 id="modal-market-title" style="font-size: 1.1rem;">🛒 Agregar Producto al Mercado</h3>
         <button class="modal-close" onclick="closeMarketModal()">✕</button>
       </div>
-      <form onsubmit="handleNewMarketItemSubmit(event)">
+      <form id="form-market-item" onsubmit="handleMarketItemSubmit(event)">
+        <input type="hidden" name="itemId" id="market-item-id" value="">
         <div class="form-group">
           <label class="form-label">Nombre del producto</label>
-          <input type="text" name="name" class="form-input" placeholder="ej: Queso tajado, Pechuga de pollo, Huevos" required>
+          <input type="text" name="name" id="market-item-name" class="form-input" placeholder="ej: Queso tajado, Pechuga de pollo, Huevos" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Precio estimado (COP)</label>
-          <input type="number" name="price" class="form-input" placeholder="ej: 15000" required min="0">
+          <label class="form-label">Precio (COP)</label>
+          <input type="number" name="price" id="market-item-price" class="form-input" placeholder="ej: 15000" required min="0">
+          <span style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">
+            Puedes actualizar este precio cada vez que cambie de un mercado a otro.
+          </span>
         </div>
         <div class="form-group">
           <label class="form-label">Pasillo / Categoría</label>
-          <select name="category" class="form-select">
+          <select name="category" id="market-item-category" class="form-select">
             <option value="Despensa">📦 Despensa</option>
             <option value="Carnes">🥩 Carnes y Pollos</option>
             <option value="Lácteos">🥛 Lácteos</option>
@@ -315,7 +319,70 @@
         </div>
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
           <button type="button" class="btn btn-secondary" onclick="closeMarketModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Agregar a la Lista</button>
+          <button type="submit" id="modal-market-submit-btn" class="btn btn-primary">Agregar a la Lista</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3b. Convert Market Cart to Expense Modal -->
+  <div class="modal-overlay" id="modal-market-to-expense" onclick="if(event.target === this) closeMarketToExpenseModal()">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">💳</span>
+          <div>
+            <h3 style="font-size: 1.1rem; margin: 0;">Registrar Mercado como Gasto</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Añade el total a los gastos del hogar de este mes</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeMarketToExpenseModal()">✕</button>
+      </div>
+      <form id="form-market-to-expense" onsubmit="handleMarketToExpenseSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Descripción del gasto</label>
+          <input type="text" name="descripcion" id="market-expense-desc" class="form-input" placeholder="ej: Mercado semanal D1, Compra Éxito" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total pagado en caja (COP)</label>
+          <input type="number" name="monto" id="market-expense-amount" class="form-input" placeholder="ej: 185000" required min="1">
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+            Calculado del carrito. Puedes ajustarlo según la factura o tirilla real.
+          </span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de la compra</label>
+          <input type="date" name="fecha" id="market-expense-date" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">¿Quién pagó en caja?</label>
+          <select name="pagado_por" id="market-expense-paid-by" class="form-select">
+            <option value="person_a">👨🏻 Fran</option>
+            <option value="person_b">👩🏻 Yox</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de gasto</label>
+          <select name="tipo_gasto" id="market-expense-type" class="form-select">
+            <option value="compartido" selected>🤝 Compartido (cuota proporcional Fran & Yox)</option>
+            <option value="personal_a">👤 Personal de Fran</option>
+            <option value="personal_b">👤 Personal de Yox</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-top: 0.5rem; background: var(--bg-glass); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+          <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; font-size: 0.85rem; user-select: none;">
+            <input type="checkbox" name="resetChecked" id="market-expense-reset-checked" checked style="margin-top: 0.2rem; accent-color: var(--primary); width: 18px; height: 18px;">
+            <div>
+              <strong>Desmarcar los productos comprados</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">
+                Deja los productos en la lista con sus precios para su próximo mercado del mes.
+              </div>
+            </div>
+          </label>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeMarketToExpenseModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar en Gastos</button>
         </div>
       </form>
     </div>
@@ -612,6 +679,63 @@
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem;">
           <button type="button" class="btn btn-secondary" onclick="closeIncomeModal()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar Ingresos</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. Category Budgets Customizer Modal -->
+  <div class="modal-overlay" id="modal-category-budgets" onclick="if(event.target === this) closeCategoryBudgetsModal()">
+    <div class="modal-container" style="max-width: 540px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span style="font-size: 1.4rem;">📊</span>
+          <div>
+            <h3 style="font-size: 1.15rem; margin: 0;">Presupuesto por Categoría</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajusta el límite mensual de cada rubro o agrega nuevas categorías</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeCategoryBudgetsModal()">✕</button>
+      </div>
+
+      <form id="form-category-budgets" onsubmit="handleCategoryBudgetsSubmit(event)">
+        <!-- List of current categories & their limits -->
+        <label class="form-label" style="margin-bottom: 0.5rem; display: block;">
+          Límites mensuales asignados para cada categoría:
+        </label>
+        <div id="category-budgets-list" style="display: flex; flex-direction: column; gap: 0.65rem; max-height: 320px; overflow-y: auto; padding-right: 0.25rem; margin-bottom: 1.25rem;">
+          <!-- Dynamically populated rows -->
+        </div>
+
+        <!-- Add New Category Sub-Card -->
+        <div style="background: var(--bg-glass); border: 1px dashed var(--border-accent); border-radius: var(--radius-md); padding: 0.85rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.825rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
+            <span>➕</span> Agregar Nueva Categoría
+          </div>
+          <div style="display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 0.5rem; align-items: center;">
+            <input type="text" id="new-cat-name" class="form-input" placeholder="Nombre (ej: Mascotas)" style="font-size: 0.85rem; padding: 0.5rem 0.7rem;">
+            <input type="number" id="new-cat-limit" class="form-input" placeholder="Límite COP" min="0" step="10000" style="font-size: 0.85rem; padding: 0.5rem 0.7rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addNewCategoryRow()" style="padding: 0.5rem 0.8rem; white-space: nowrap;">
+              + Agregar
+            </button>
+          </div>
+        </div>
+
+        <!-- Total Budget vs Monthly Income Summary Box -->
+        <div class="theme-preview-box" style="flex-direction: column; gap: 0.5rem; align-items: stretch; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+            <span style="color: var(--text-muted);">Total Presupuestado Mensual:</span>
+            <strong style="color: var(--primary);" id="preview-total-budgeted">$0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+            <span>Ingreso total del hogar (Fran + Yox):</span>
+            <span id="preview-household-income" style="color: var(--income-color); font-weight: 600;">$0</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeCategoryBudgetsModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Presupuestos</button>
         </div>
       </form>
     </div>

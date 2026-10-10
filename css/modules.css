@@ -72,10 +72,20 @@
   transition: all var(--transition-fast);
 }
 
+.market-item-row:hover {
+  border-color: var(--border-accent);
+  background: var(--bg-card-hover);
+}
+
 .market-item-row.completed {
-  opacity: 0.5;
-  text-decoration: line-through;
+  opacity: 0.7;
   background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.market-item-row.completed .market-item-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
 }
 
 .market-checkbox {
