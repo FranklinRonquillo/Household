@@ -92,14 +92,17 @@ function renderDashboardModule(appState) {
       ` : ''}
 
       <!-- Top Quote & Motivation Banner -->
-      <div class="glass-card split-card" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div class="glass-card split-card" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; cursor: pointer;" onclick="openQuoteModal()" title="Haz clic para personalizar la frase del hogar">
         <div>
-          <span class="badge badge-purple">✨ Frase de Hoy</span>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="badge badge-purple">✨ Frase de Hoy</span>
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openQuoteModal()" style="padding: 2px 7px; font-size: 0.7rem;">✏️ Modificar</button>
+          </div>
           <h3 style="margin-top: 0.5rem; font-size: 1.15rem; color: var(--text-main);">"${quote}"</h3>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
           <div style="text-align: right;">
-            <div style="font-size: 0.8rem; color: var(--text-muted);">🔥 Racha de Ahorro</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">🔥 Racha de Control</div>
             <div style="font-weight: 700; color: var(--accent-gold); font-size: 1.1rem;">${savingsStreak} Días</div>
           </div>
           <div style="text-align: right;">

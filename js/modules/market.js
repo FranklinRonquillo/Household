@@ -4,9 +4,9 @@
    ========================================================================== */
 
 function renderMarketModule(appState) {
-  const { market } = appState;
+  const { market, categoryBudgets } = appState;
   const items = market?.items || [];
-  const budget = market?.budget || 0;
+  const budget = (market?.budget && market.budget > 0) ? market.budget : (categoryBudgets?.['Mercado'] || 0);
   
   const checkedItems = items.filter(item => item.checked);
   // Calculate current cart total (from checked items)
@@ -110,9 +110,12 @@ function renderMarketModule(appState) {
           <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">📊 Resumen del Carrito</h3>
           
           <div style="margin-bottom: 1.25rem;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.35rem;">
               <span>Presupuesto fijado:</span>
-              <strong style="color: var(--text-main);">${budget > 0 ? formatCurrency(budget) : 'Sin límite mensual'}</strong>
+              <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <strong style="color: var(--text-main);">${budget > 0 ? formatCurrency(budget) : 'Sin límite fijado'}</strong>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openCategoryBudgetsModal('Mercado')" title="Modificar presupuesto de mercado" style="padding: 1px 5px; font-size: 0.65rem;">✏️</button>
+              </div>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.35rem;">
               <span>Productos en carrito:</span>

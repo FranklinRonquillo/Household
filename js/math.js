@@ -295,3 +295,109 @@ function calculateCouplePoints(appState) {
   return expensesPts + marketPts + savingsPts + memoriesPts;
 }
 
+/**
+ * Calculates dynamic savings streak based on days with recorded expenses/budget control
+ */
+function calculateSavingsStreak(expenses = []) {
+  if (!expenses || expenses.length === 0) return 0;
+  const uniqueDates = Array.from(new Set(
+    expenses.map(e => e.fecha ? String(e.fecha).substring(0, 10) : null).filter(Boolean)
+  )).sort();
+  return uniqueDates.length;
+}
+
+/**
+ * Calculates dynamic achievements based on real milestones
+ */
+function calculateDynamicAchievements(appState) {
+  if (!appState) return [];
+  const list = [];
+  const expenses = appState.expenses || [];
+  const marketItems = appState.market?.items || [];
+  const savingsGoals = appState.savingsGoals || [];
+  const memories = appState.memories || [];
+  const userA = appState.userA || {};
+  const userB = appState.userB || {};
+
+  // Milestone 1: Primer Gasto
+  if (expenses.length >= 1) {
+    const firstExp = expenses[expenses.length - 1];
+    list.push({
+      id: 'first_expense',
+      icon: '🌱',
+      title: 'Primer Paso Financiero',
+      desc: 'Registraron su primer gasto juntos en el hogar.',
+      date: firstExp.fecha || 'Inicio'
+    });
+  }
+
+  // Milestone 2: Lista de Mercado
+  if (marketItems.length >= 1) {
+    list.push({
+      id: 'smart_market',
+      icon: '🛒',
+      title: 'Despensa del Hogar',
+      desc: 'Crearon su catálogo inteligente de compras de mercado.',
+      date: 'Completado'
+    });
+  }
+
+  // Milestone 3: Metas de Ahorro
+  if (savingsGoals.length >= 1) {
+    list.push({
+      id: 'first_goal',
+      icon: '🎯',
+      title: 'Soñadores con Plan',
+      desc: `Crearon su primera meta de ahorro ("${savingsGoals[0].title}").`,
+      date: 'Completado'
+    });
+  }
+
+  // Milestone 4: Ahorro activo
+  const hasDeposits = savingsGoals.some(g => (Number(g.current) || 0) > 0);
+  if (hasDeposits) {
+    list.push({
+      id: 'active_savings',
+      icon: '🐷',
+      title: 'Ahorro en Marcha',
+      desc: 'Han realizado aportes activos a sus metas de ahorro.',
+      date: 'Completado'
+    });
+  }
+
+  // Milestone 5: Álbum de Recuerdos
+  if (memories.length >= 1) {
+    list.push({
+      id: 'first_memory',
+      icon: '📸',
+      title: 'Cápsula del Tiempo',
+      desc: 'Guardaron su primera memoria fotográfica del hogar.',
+      date: memories[0].date || 'Completado'
+    });
+  }
+
+  // Milestone 6: Finanzas Claras y Organizadas (10+ registros)
+  if (expenses.length >= 10) {
+    list.push({
+      id: 'master_team',
+      icon: '👑',
+      title: 'Equipo Imparable',
+      desc: 'Más de 10 gastos registrados con orden impecable.',
+      date: 'Hito Pro'
+    });
+  }
+
+  // Milestone 7: Sueldos Configurados
+  if ((userA.income || 0) > 0 && (userB.income || 0) > 0) {
+    list.push({
+      id: 'proportional_split',
+      icon: '⚖️',
+      title: 'Pacto de Transparencia',
+      desc: 'Configuraron sus ingresos para una distribución justa.',
+      date: 'Pilar Base'
+    });
+  }
+
+  return list;
+}
+

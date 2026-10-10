@@ -125,7 +125,23 @@ class StateManager {
   }
 
   get() {
-    return this.data;
+    const expenses = this.data.expenses || [];
+    const savingsStreak = (typeof calculateSavingsStreak === 'function') 
+      ? calculateSavingsStreak(expenses) 
+      : (this.data.savingsStreak || 0);
+    const achievements = (typeof calculateDynamicAchievements === 'function')
+      ? calculateDynamicAchievements(this.data)
+      : (this.data.achievements || []);
+    const couplePoints = (typeof calculateCouplePoints === 'function')
+      ? calculateCouplePoints(this.data)
+      : (this.data.couplePoints || 0);
+
+    return {
+      ...this.data,
+      savingsStreak,
+      achievements,
+      couplePoints
+    };
   }
 
   set(updater) {
@@ -171,14 +187,23 @@ class StateManager {
       // 5. Fetch memories
       const { data: memories } = await sb.from('memories').select('*').order('id', { ascending: false });
 
-      // 6. Fetch custom settings (incomes & category_budgets) if household_settings exists
+      // 6. Fetch custom settings (incomes, category_budgets, couple_quote, calendar_payments, life_goals)
       let customIncomes = null;
       let customBudgets = null;
+      let customQuote = null;
+      let customCalendar = null;
+      let customLifeGoals = null;
       try {
         const { data: incSettings } = await sb.from('household_settings').select('*').eq('id', 'incomes').maybeSingle();
         if (incSettings && incSettings.data) customIncomes = incSettings.data;
         const { data: bSettings } = await sb.from('household_settings').select('*').eq('id', 'category_budgets').maybeSingle();
         if (bSettings && bSettings.data) customBudgets = bSettings.data;
+        const { data: qSettings } = await sb.from('household_settings').select('*').eq('id', 'couple_quote').maybeSingle();
+        if (qSettings && qSettings.data && qSettings.data.quote) customQuote = qSettings.data.quote;
+        const { data: calSettings } = await sb.from('household_settings').select('*').eq('id', 'calendar_payments').maybeSingle();
+        if (calSettings && calSettings.data && Array.isArray(calSettings.data.payments)) customCalendar = calSettings.data.payments;
+        const { data: lifeSettings } = await sb.from('household_settings').select('*').eq('id', 'life_goals').maybeSingle();
+        if (lifeSettings && lifeSettings.data && Array.isArray(lifeSettings.data.goals)) customLifeGoals = lifeSettings.data.goals;
       } catch (e) {
         // Table may not exist yet, fallback to state
       }
@@ -195,7 +220,10 @@ class StateManager {
         memories: Array.isArray(memories) ? memories.map(m => ({ ...m, desc: m.description || m.desc, image: m.image_url || m.image })) : current.memories,
         userA: (customIncomes && customIncomes.incomeA !== undefined) ? { ...current.userA, income: customIncomes.incomeA } : current.userA,
         userB: (customIncomes && customIncomes.incomeB !== undefined) ? { ...current.userB, income: customIncomes.incomeB } : current.userB,
-        categoryBudgets: (customBudgets && typeof customBudgets === 'object' && Object.keys(customBudgets).length > 0) ? customBudgets : current.categoryBudgets
+        categoryBudgets: (customBudgets && typeof customBudgets === 'object' && Object.keys(customBudgets).length > 0) ? customBudgets : current.categoryBudgets,
+        quote: customQuote || current.quote,
+        calendarPayments: Array.isArray(customCalendar) ? customCalendar : current.calendarPayments,
+        lifeGoals: Array.isArray(customLifeGoals) ? customLifeGoals : current.lifeGoals
       }));
 
       // Setup Realtime live syncing
@@ -240,6 +268,24 @@ class StateManager {
           this.set(c => ({
             ...c,
             categoryBudgets: payload.new.data
+          }));
+        }
+        if (payload.new && payload.new.id === 'couple_quote' && payload.new.data?.quote) {
+          this.set(c => ({
+            ...c,
+            quote: payload.new.data.quote
+          }));
+        }
+        if (payload.new && payload.new.id === 'calendar_payments' && Array.isArray(payload.new.data?.payments)) {
+          this.set(c => ({
+            ...c,
+            calendarPayments: payload.new.data.payments
+          }));
+        }
+        if (payload.new && payload.new.id === 'life_goals' && Array.isArray(payload.new.data?.goals)) {
+          this.set(c => ({
+            ...c,
+            lifeGoals: payload.new.data.goals
           }));
         }
       })

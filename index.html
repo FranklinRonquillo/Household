@@ -193,16 +193,18 @@
   </div>
 
   <!-- 1. Register Expense Modal -->
-  <div class="modal-overlay" id="modal-expense">
+  <!-- 1. Register / Edit Expense Modal -->
+  <div class="modal-overlay" id="modal-expense" onclick="if(event.target === this) closeExpenseModal()">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 style="font-size: 1.1rem;">💸 Registrar Nuevo Gasto</h3>
+        <h3 id="modal-expense-title" style="font-size: 1.1rem;">💸 Registrar Nuevo Gasto</h3>
         <button class="modal-close" onclick="closeExpenseModal()">✕</button>
       </div>
-      <form onsubmit="handleNewExpenseSubmit(event)">
+      <form id="form-expense" onsubmit="handleNewExpenseSubmit(event)">
+        <input type="hidden" name="expenseId" id="expense-id" value="">
         <div class="form-group">
           <label class="form-label">Descripción del gasto</label>
-          <input type="text" name="descripcion" class="form-input" placeholder="ej: Mercado semanal, Arriendo, Salida a cenar" required>
+          <input type="text" name="descripcion" id="expense-descripcion" class="form-input" placeholder="ej: Mercado semanal, Arriendo, Salida a cenar" required>
         </div>
         <div class="form-group">
           <label class="form-label">Fecha del gasto</label>
@@ -210,7 +212,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Monto (COP)</label>
-          <input type="number" name="monto" class="form-input" placeholder="ej: 150000" required min="1">
+          <input type="number" name="monto" id="expense-monto" class="form-input" placeholder="ej: 150000" required min="1">
         </div>
         <div class="form-group">
           <label class="form-label">Categoría</label>
@@ -228,14 +230,14 @@
         </div>
         <div class="form-group">
           <label class="form-label">¿Quién pagó?</label>
-          <select name="pagado_por" class="form-select">
+          <select name="pagado_por" id="expense-pagado-por" class="form-select">
             <option value="person_a">👨🏻 Fran</option>
             <option value="person_b">👩🏻 Yox</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Tipo de Gasto</label>
-          <select name="tipo_gasto" class="form-select">
+          <select name="tipo_gasto" id="expense-tipo-gasto" class="form-select">
             <option value="compartido">🤝 Compartido (Proporcional a ingresos)</option>
             <option value="personal_a">👤 Personal de Fran</option>
             <option value="personal_b">👤 Personal de Yox</option>
@@ -243,35 +245,36 @@
         </div>
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
           <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Gasto</button>
+          <button type="submit" id="modal-expense-submit-btn" class="btn btn-primary">Guardar Gasto</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 2. Register Debt Modal -->
-  <div class="modal-overlay" id="modal-debt">
+  <!-- 2. Register / Edit Debt Modal -->
+  <div class="modal-overlay" id="modal-debt" onclick="if(event.target === this) closeDebtModal()">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 style="font-size: 1.1rem;">🧾 Registrar Deuda / Cuota Pendiente</h3>
+        <h3 id="modal-debt-title" style="font-size: 1.1rem;">🧾 Registrar Deuda / Cuota Pendiente</h3>
         <button class="modal-close" onclick="closeDebtModal()">✕</button>
       </div>
-      <form onsubmit="handleNewDebtSubmit(event)">
+      <form id="form-debt" onsubmit="handleNewDebtSubmit(event)">
+        <input type="hidden" name="debtId" id="debt-id" value="">
         <div class="form-group">
           <label class="form-label">Concepto de la deuda o pago</label>
-          <input type="text" name="concept" class="form-input" placeholder="ej: Cuota administración apto, Préstamo cena" required>
+          <input type="text" name="concept" id="debt-concept" class="form-input" placeholder="ej: Cuota administración apto, Préstamo cena" required>
         </div>
         <div class="form-group">
           <label class="form-label">Monto (COP)</label>
-          <input type="number" name="amount" class="form-input" placeholder="ej: 180000" required min="1">
+          <input type="number" name="amount" id="debt-amount" class="form-input" placeholder="ej: 180000" required min="1">
         </div>
         <div class="form-group">
           <label class="form-label">Fecha de vencimiento</label>
-          <input type="date" name="dueDate" class="form-input" required>
+          <input type="date" name="dueDate" id="debt-due-date" class="form-input" required>
         </div>
         <div class="form-group">
           <label class="form-label">Tipo / Clasificación</label>
-          <select name="type" class="form-select">
+          <select name="type" id="debt-type" class="form-select">
             <option value="Servicio">💡 Servicio</option>
             <option value="Tarjeta">💳 Tarjeta de Crédito</option>
             <option value="Pareja">🤝 Préstamo entre Pareja</option>
@@ -280,7 +283,7 @@
         </div>
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
           <button type="button" class="btn btn-secondary" onclick="closeDebtModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Deuda</button>
+          <button type="submit" id="modal-debt-submit-btn" class="btn btn-primary">Guardar Deuda</button>
         </div>
       </form>
     </div>
@@ -388,25 +391,26 @@
     </div>
   </div>
 
-  <!-- 4. Add Savings Goal Modal -->
-  <div class="modal-overlay" id="modal-savings">
+  <!-- 4. Add / Edit Savings Goal Modal -->
+  <div class="modal-overlay" id="modal-savings" onclick="if(event.target === this) closeSavingsModal()">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 style="font-size: 1.1rem;">🎯 Crear Nueva Meta de Ahorro</h3>
+        <h3 id="modal-savings-title" style="font-size: 1.1rem;">🎯 Crear Nueva Meta de Ahorro</h3>
         <button class="modal-close" onclick="closeSavingsModal()">✕</button>
       </div>
-      <form onsubmit="handleNewSavingsGoalSubmit(event)">
+      <form id="form-savings" onsubmit="handleNewSavingsGoalSubmit(event)">
+        <input type="hidden" name="goalId" id="savings-goal-id" value="">
         <div class="form-group">
           <label class="form-label">Título de la meta</label>
-          <input type="text" name="title" class="form-input" placeholder="ej: Viaje a la playa ✈️, Fondo de emergencia 🆘" required>
+          <input type="text" name="title" id="savings-goal-title" class="form-input" placeholder="ej: Viaje a la playa ✈️, Fondo de emergencia 🆘" required>
         </div>
         <div class="form-group">
           <label class="form-label">Monto Objetivo (COP)</label>
-          <input type="number" name="target" class="form-input" placeholder="ej: 5000000" required min="1000">
+          <input type="number" name="target" id="savings-goal-target" class="form-input" placeholder="ej: 5000000" required min="1000">
         </div>
         <div class="form-group">
           <label class="form-label">Icono Representativo</label>
-          <select name="icon" class="form-select">
+          <select name="icon" id="savings-goal-icon" class="form-select">
             <option value="🏠">🏠 Casa</option>
             <option value="🚗">🚗 Carro / Moto</option>
             <option value="✈️">✈️ Viaje</option>
@@ -417,39 +421,165 @@
         </div>
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
           <button type="button" class="btn btn-secondary" onclick="closeSavingsModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Crear Meta</button>
+          <button type="submit" id="modal-savings-submit-btn" class="btn btn-primary">Guardar Meta</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 5. Add Memory Photo Modal -->
-  <div class="modal-overlay" id="modal-memory">
+  <!-- 4b. Deposit into Savings Goal Modal -->
+  <div class="modal-overlay" id="modal-savings-deposit" onclick="if(event.target === this) closeSavingsDepositModal()">
+    <div class="modal-container" style="max-width: 440px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">💰</span>
+          <div>
+            <h3 style="font-size: 1.1rem; margin: 0;">Abonar a Meta de Ahorro</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);" id="deposit-goal-title">Meta</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeSavingsDepositModal()">✕</button>
+      </div>
+      <form id="form-savings-deposit" onsubmit="handleSavingsDepositSubmit(event)">
+        <input type="hidden" name="goalId" id="deposit-goal-id" value="">
+        <div style="background: var(--bg-glass); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+            <span style="color: var(--text-muted);">Ahorrado actualmente:</span>
+            <strong style="color: var(--income-color);" id="deposit-goal-current">$0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+            <span style="color: var(--text-muted);">Monto objetivo:</span>
+            <strong id="deposit-goal-target">$0</strong>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto a abonar hoy (COP)</label>
+          <input type="number" name="amount" id="deposit-amount" class="form-input" placeholder="ej: 100000" required min="1" step="10000">
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeSavingsDepositModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Abono</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Add / Edit Memory Photo Modal -->
+  <div class="modal-overlay" id="modal-memory" onclick="if(event.target === this) closeMemoryModal()">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 style="font-size: 1.1rem;">📸 Guardar Nuevo Recuerdo del Hogar</h3>
+        <h3 id="modal-memory-title" style="font-size: 1.1rem;">📸 Guardar Nuevo Recuerdo del Hogar</h3>
         <button class="modal-close" onclick="closeMemoryModal()">✕</button>
       </div>
-      <form onsubmit="handleNewMemorySubmit(event)">
+      <form id="form-memory" onsubmit="handleNewMemorySubmit(event)">
+        <input type="hidden" name="memoryId" id="memory-id" value="">
         <div class="form-group">
           <label class="form-label">Título del recuerdo</label>
-          <input type="text" name="title" class="form-input" placeholder="ej: Primer mercado juntos 🛒" required>
+          <input type="text" name="title" id="memory-title" class="form-input" placeholder="ej: Primer mercado juntos 🛒" required>
         </div>
         <div class="form-group">
           <label class="form-label">Fecha o momento</label>
-          <input type="text" name="date" class="form-input" placeholder="ej: 15 Mayo 2026" required>
+          <input type="text" name="date" id="memory-date" class="form-input" placeholder="ej: 15 Mayo 2026" required>
         </div>
         <div class="form-group">
           <label class="form-label">Descripción / Anécdota</label>
-          <textarea name="desc" class="form-textarea" rows="3" placeholder="Un momento inolvidable que recordaremos siempre..." required></textarea>
+          <textarea name="desc" id="memory-desc" class="form-textarea" rows="3" placeholder="Un momento inolvidable que recordaremos siempre..." required></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">URL de la foto</label>
-          <input type="url" name="image" class="form-input" placeholder="https://..." required value="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=600&q=80">
+          <input type="url" name="image" id="memory-image" class="form-input" placeholder="https://..." required value="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=600&q=80">
         </div>
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
           <button type="button" class="btn btn-secondary" onclick="closeMemoryModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Recuerdo</button>
+          <button type="submit" id="modal-memory-submit-btn" class="btn btn-primary">Guardar Recuerdo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5b. Edit Household Motto / Quote Modal -->
+  <div class="modal-overlay" id="modal-quote" onclick="if(event.target === this) closeQuoteModal()">
+    <div class="modal-container" style="max-width: 480px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">💌</span>
+          <div>
+            <h3 style="font-size: 1.1rem; margin: 0;">Frase de Hoy de Nuestro Hogar</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Mensaje motivacional de Fran y Yox</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeQuoteModal()">✕</button>
+      </div>
+      <form id="form-quote" onsubmit="handleQuoteSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Mensaje o frase inspiradora</label>
+          <textarea name="quote" id="quote-input" class="form-textarea" rows="3" placeholder="ej: Cada peso que cuidamos nos acerca a lo que queremos. ❤️" required></textarea>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeQuoteModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Frase</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5c. Add / Edit Calendar Payment Date Modal -->
+  <div class="modal-overlay" id="modal-calendar-payment" onclick="if(event.target === this) closeCalendarPaymentModal()">
+    <div class="modal-container" style="max-width: 460px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">🗓️</span>
+          <div>
+            <h3 id="modal-calendar-title" style="font-size: 1.1rem; margin: 0;">Fecha Clave de Pago Mensual</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Recordatorio de pago recurrente en el mes</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeCalendarPaymentModal()">✕</button>
+      </div>
+      <form id="form-calendar-payment" onsubmit="handleCalendarPaymentSubmit(event)">
+        <input type="hidden" name="paymentId" id="calendar-payment-id" value="">
+        <div class="form-group">
+          <label class="form-label">Día del mes (1 - 31)</label>
+          <input type="number" name="day" id="calendar-payment-day" class="form-input" placeholder="ej: 15" required min="1" max="31">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Concepto o Factura</label>
+          <input type="text" name="title" id="calendar-payment-title" class="form-input" placeholder="ej: Factura Internet Fibra, Arriendo Apto" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto estimado (COP)</label>
+          <input type="number" name="amount" id="calendar-payment-amount" class="form-input" placeholder="ej: 120000" required min="0" step="5000">
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeCalendarPaymentModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Recordatorio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5d. Add / Edit Life Goal Modal -->
+  <div class="modal-overlay" id="modal-life-goal" onclick="if(event.target === this) closeLifeGoalModal()">
+    <div class="modal-container" style="max-width: 460px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">✨</span>
+          <div>
+            <h3 id="modal-life-goal-title" style="font-size: 1.1rem; margin: 0;">Nuevo Objetivo de Pareja</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Un sueño o proyecto personal o compartido</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeLifeGoalModal()">✕</button>
+      </div>
+      <form id="form-life-goal" onsubmit="handleLifeGoalSubmit(event)">
+        <input type="hidden" name="lifeGoalId" id="life-goal-id" value="">
+        <div class="form-group">
+          <label class="form-label">Título del Objetivo</label>
+          <input type="text" name="title" id="life-goal-title" class="form-input" placeholder="ej: Comprar freidora de aire 🍳, Viaje a San Andrés 🏝️" required>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeLifeGoalModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Objetivo</button>
         </div>
       </form>
     </div>

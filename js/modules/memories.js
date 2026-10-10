@@ -28,6 +28,14 @@ function renderMemoriesModule(appState) {
         <div class="memories-grid">
           ${memories.map(mem => `
             <div class="memory-card">
+              <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 2;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openMemoryModal('${mem.id}')" title="Editar recuerdo" style="background: rgba(0,0,0,0.65); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-sm); padding: 4px 8px; font-size: 0.8rem; backdrop-filter: blur(6px); cursor: pointer;">
+                  ✏️
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="deleteMemory('${mem.id}')" title="Eliminar recuerdo" style="background: rgba(0,0,0,0.65); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-sm); padding: 4px 8px; font-size: 0.8rem; backdrop-filter: blur(6px); cursor: pointer;">
+                  🗑️
+                </button>
+              </div>
               <img src="${mem.image}" alt="${mem.title}" class="memory-img-wrapper" loading="lazy">
               <div class="memory-body">
                 <div class="memory-title">${mem.title}</div>

@@ -143,30 +143,41 @@ function renderExpensesModule(appState) {
       <div class="dashboard-sections-grid" style="margin-bottom: 2rem;">
         <!-- Monthly Payment Dates Timeline -->
         <div class="glass-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="font-size: 1.1rem;">🗓️ Fechas Clave de Pago del Mes</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.1rem; margin: 0;">🗓️ Fechas Clave de Pago del Mes</h3>
+            <button class="btn btn-secondary btn-sm" onclick="openCalendarPaymentModal()">+ Recordatorio</button>
           </div>
           ${(!calendarPayments || calendarPayments.length === 0) ? `
             <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
               <div style="font-size: 2rem; margin-bottom: 0.4rem;">🗓️</div>
               <p style="font-size: 0.85rem;">No hay recordatorios de pago recurrentes para este mes.</p>
+              <button class="btn btn-primary btn-sm" onclick="openCalendarPaymentModal()" style="margin-top: 0.75rem;">+ Agregar Primer Recordatorio</button>
             </div>
           ` : `
             <div style="display: flex; flex-direction: column; gap: 0.85rem;">
               ${calendarPayments.map(pay => `
                 <div class="unified-list-card">
-                  <div class="unified-card-badge">
+                  <div class="unified-card-badge" onclick="toggleCalendarPaymentStatus('${pay.id}')" style="cursor: pointer;" title="Clic para alternar Pagado / Pendiente">
                     <span class="num">${String(pay.day).padStart(2, '0')}</span>
-                    <span class="label">DÍA</span>
+                    <span class="label">${(pay.status === 'paid' || pay.status === 'pagado') ? 'LISTO' : 'DÍA'}</span>
                   </div>
-                  <div class="unified-card-body">
-                    <div class="unified-card-top">
-                      <span class="title">${pay.title}</span>
-                      ${pay.status === 'paid' ? '<span class="badge badge-success">Pagado 🟢</span>' : '<span class="badge badge-warning">Pendiente 🟡</span>'}
+                  <div class="unified-card-body" style="flex: 1;">
+                    <div class="unified-card-top" style="display: flex; justify-content: space-between; align-items: center;">
+                      <span class="title" style="${(pay.status === 'paid' || pay.status === 'pagado') ? 'text-decoration: line-through; opacity: 0.7;' : ''}">${pay.title}</span>
+                      <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <span class="badge ${(pay.status === 'paid' || pay.status === 'pagado') ? 'badge-success' : 'badge-warning'}" onclick="toggleCalendarPaymentStatus('${pay.id}')" style="cursor: pointer;" title="Cambiar estado">
+                          ${(pay.status === 'paid' || pay.status === 'pagado') ? 'Pagado 🟢' : 'Pendiente 🟡'}
+                        </span>
+                        <button class="btn btn-secondary btn-sm" onclick="deleteCalendarPayment('${pay.id}')" title="Eliminar recordatorio" style="padding: 2px 6px; font-size: 0.7rem; color: var(--expense-color);">
+                          🗑️
+                        </button>
+                      </div>
                     </div>
-                    <div class="unified-card-bottom">
-                      <span class="subtext">Fecha recurrente del mes</span>
-                      <span class="amount" style="color: var(--text-main);">${formatCurrency(pay.amount)}</span>
+                    <div class="unified-card-bottom" style="display: flex; justify-content: space-between; align-items: center;">
+                      <span class="subtext">Día ${pay.day} de cada mes</span>
+                      <span class="amount" style="color: ${pay.status === 'paid' ? 'var(--income-color)' : 'var(--text-main)'}; font-weight: 700;">
+                        ${formatCurrency(pay.amount)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -177,31 +188,40 @@ function renderExpensesModule(appState) {
 
         <!-- Pending Debts & Installments -->
         <div class="glass-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="font-size: 1.1rem;">🧾 Deudas y Compromisos</h3>
-            <button class="btn btn-secondary btn-sm" onclick="openDebtModal()">+ Agregar</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.1rem; margin: 0;">🧾 Deudas y Compromisos</h3>
+            <button class="btn btn-secondary btn-sm" onclick="openDebtModal()">+ Agregar Deuda</button>
           </div>
           ${(!debts || debts.length === 0) ? `
             <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
               <div style="font-size: 2rem; margin-bottom: 0.4rem;">🎉</div>
               <p style="font-weight: 600; color: var(--income-color); font-size: 0.9rem;">¡Están al día!</p>
               <p style="font-size: 0.8rem; margin-top: 0.2rem;">Sin deudas o cuotas pendientes registradas.</p>
+              <button class="btn btn-secondary btn-sm" onclick="openDebtModal()" style="margin-top: 0.75rem;">+ Registrar Compromiso</button>
             </div>
           ` : `
             <div style="display: flex; flex-direction: column; gap: 0.85rem;">
               ${debts.map(debt => `
                 <div class="unified-list-card">
-                  <div class="unified-card-badge debt">
-                    <span class="num">🧾</span>
+                  <div class="unified-card-badge debt" onclick="toggleDebtStatus(${debt.id})" style="cursor: pointer;" title="Clic para alternar Pagado / Pendiente">
+                    <span class="num">${debt.status === 'pagado' ? '✅' : '🧾'}</span>
                   </div>
-                  <div class="unified-card-body">
-                    <div class="unified-card-top">
-                      <span class="title">${debt.concept}</span>
-                      <span class="badge badge-danger">${debt.type}</span>
+                  <div class="unified-card-body" style="flex: 1;">
+                    <div class="unified-card-top" style="display: flex; justify-content: space-between; align-items: center;">
+                      <span class="title" style="${debt.status === 'pagado' ? 'text-decoration: line-through; opacity: 0.7;' : ''}">${debt.concept}</span>
+                      <div style="display: flex; align-items: center; gap: 0.35rem;">
+                        <span class="badge ${debt.status === 'pagado' ? 'badge-success' : 'badge-danger'}" onclick="toggleDebtStatus(${debt.id})" style="cursor: pointer;" title="Cambiar estado">
+                          ${debt.status === 'pagado' ? 'Pagada 🎉' : debt.type}
+                        </span>
+                        <button class="btn btn-secondary btn-sm" onclick="openDebtModal(${debt.id})" title="Editar deuda" style="padding: 2px 6px; font-size: 0.7rem;">✏️</button>
+                        <button class="btn btn-secondary btn-sm" onclick="deleteDebt(${debt.id})" title="Eliminar deuda" style="padding: 2px 6px; font-size: 0.7rem; color: var(--expense-color);">🗑️</button>
+                      </div>
                     </div>
-                    <div class="unified-card-bottom">
+                    <div class="unified-card-bottom" style="display: flex; justify-content: space-between; align-items: center;">
                       <span class="subtext">Vence: ${debt.dueDate}</span>
-                      <span class="amount" style="color: var(--expense-color);">${formatCurrency(debt.amount)}</span>
+                      <span class="amount" style="color: ${debt.status === 'pagado' ? 'var(--income-color)' : 'var(--expense-color)'}; font-weight: 700;">
+                        ${formatCurrency(debt.amount)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -239,7 +259,7 @@ function renderExpensesModule(appState) {
           </div>
         ` : `
           <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-            <table style="width: 100%; min-width: 520px; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <table style="width: 100%; min-width: 600px; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
               <thead>
                 <tr style="border-bottom: 1px solid var(--border-glass); color: var(--text-muted);">
                   <th style="padding: 0.75rem;">Fecha</th>
@@ -248,6 +268,7 @@ function renderExpensesModule(appState) {
                   <th style="padding: 0.75rem;">¿Quién pagó?</th>
                   <th style="padding: 0.75rem; text-align: center;">Tipo</th>
                   <th style="padding: 0.75rem; text-align: right;">Monto</th>
+                  <th style="padding: 0.75rem; text-align: center;">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -263,6 +284,10 @@ function renderExpensesModule(appState) {
                     <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: var(--expense-color);">
                       -${formatCurrency(item.monto)}
                     </td>
+                    <td style="padding: 0.75rem; text-align: center; white-space: nowrap;">
+                      <button class="btn btn-secondary btn-sm" onclick="openExpenseModal(${item.id})" title="Editar gasto" style="padding: 3px 6px; font-size: 0.75rem;">✏️</button>
+                      <button class="btn btn-secondary btn-sm" onclick="deleteExpense(${item.id})" title="Eliminar gasto" style="padding: 3px 6px; font-size: 0.75rem; color: var(--expense-color);">🗑️</button>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -274,6 +299,7 @@ function renderExpensesModule(appState) {
                   <td style="padding: 0.85rem; text-align: right; color: var(--expense-color); font-size: 1.05rem;">
                     -${formatCurrency(totalMonthExpenses)}
                   </td>
+                  <td></td>
                 </tr>
               </tfoot>
             </table>
