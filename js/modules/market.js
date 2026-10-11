@@ -1,7 +1,27 @@
 /* ==========================================================================
-   HOUSEHOLD - Smart Market List Module Renderer
-   Dynamic Market Checklist, Budget Tracker & Expense Conversion (Zero Burned Data)
+   HOUSEHOLD - Smart Market List Module Renderer (Mobile-First Architecture)
+   Dynamic Checklist, Live Budget Tracker & Instant 1-Click Expense Conversion
    ========================================================================== */
+
+let currentMarketFilter = 'all';
+
+function setMarketFilter(filter) {
+  currentMarketFilter = filter;
+  if (typeof renderApp === 'function' && typeof state !== 'undefined') {
+    renderApp(state.get());
+  }
+}
+
+function getMarketCategoryIcon(category) {
+  switch (category) {
+    case 'Despensa': return '📦';
+    case 'Carnes': return '🥩';
+    case 'Lácteos': return '🥛';
+    case 'Verduras': return '🥦';
+    case 'Aseo': return '🧴';
+    case 'Varios': default: return '🛒';
+  }
+}
 
 function renderMarketModule(appState) {
   const { market, categoryBudgets } = appState;
@@ -9,6 +29,8 @@ function renderMarketModule(appState) {
   const budget = (market?.budget && market.budget > 0) ? market.budget : (categoryBudgets?.['Mercado'] || 0);
   
   const checkedItems = items.filter(item => item.checked);
+  const pendingItems = items.filter(item => !item.checked);
+
   // Calculate current cart total (from checked items)
   const currentCartTotal = checkedItems
     .reduce((sum, item) => sum + (Number(item.price) || 0), 0);
@@ -21,168 +43,273 @@ function renderMarketModule(appState) {
   const cartPercent = budget > 0 ? (currentCartTotal / budget) * 100 : 0;
   const finalPurchaseAmount = currentCartTotal > 0 ? currentCartTotal : allItemsTotal;
 
+  // Filter items based on current active segmented filter
+  let displayedItems = items;
+  if (currentMarketFilter === 'pending') {
+    displayedItems = pendingItems;
+  } else if (currentMarketFilter === 'checked') {
+    displayedItems = checkedItems;
+  }
+
   return `
     <div class="fade-in">
-      <!-- Header with direct Action Buttons -->
-      <div class="glass-card-header" style="margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-        <div>
-          <h2>🛒 Lista del Mercado Inteligente</h2>
-          <p style="color: var(--text-muted); font-size: 0.875rem;">Precios editables por producto · Carga directa a gastos en un solo clic</p>
+      <!-- 1. Header: Title, Live Counter & Fast Action Buttons -->
+      <div class="market-view-header">
+        <div class="market-title-wrap">
+          <h2>🛒 Lista de Compras</h2>
+          <span class="badge ${checkedItems.length > 0 ? 'badge-success' : 'badge-purple'}">
+            ${checkedItems.length}/${items.length} en carrito
+          </span>
         </div>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-          ${finalPurchaseAmount > 0 ? `
-            <button class="btn btn-primary btn-sm" onclick="quickAddMarketToExpenses('person_a')" title="Añadir total directamente a gastos">
-              💳 + Añadir Total a Gastos (${formatCurrency(finalPurchaseAmount)})
-            </button>
-          ` : ''}
+        <div class="market-subtitle">
+          ${items.length === 0 
+            ? 'Organiza el mercado del hogar con precios reales y registro directo en gastos' 
+            : `Total estimado de la lista: <strong style="color: var(--text-main);">${formatCurrency(allItemsTotal)}</strong>`}
+        </div>
+
+        <div class="market-header-actions">
+          <button class="btn btn-primary btn-sm" onclick="openMarketModal()" style="font-weight: 700;">
+            + Agregar Producto
+          </button>
           ${checkedItems.length > 0 ? `
-            <button class="btn btn-secondary btn-sm" onclick="uncheckAllMarketItems()" title="Desmarcar todos los productos para el próximo mercado">
+            <button class="btn btn-secondary btn-sm" onclick="uncheckAllMarketItems()" title="Desmarcar todos para el próximo mercado">
               🔄 Desmarcar (${checkedItems.length})
             </button>
           ` : ''}
           ${items.length === 0 ? `
-            <button class="btn btn-secondary btn-sm" onclick="loadSuggestedMarketItems()" style="background: rgba(var(--primary-rgb, 236, 72, 153), 0.15); border-color: var(--primary); color: var(--text-main);" title="Cargar 15 productos básicos del hogar">
-              📥 Cargar Lista Básica
+            <button class="btn btn-secondary btn-sm" onclick="loadSuggestedMarketItems()" style="background: rgba(var(--primary-rgb, 236, 72, 153), 0.15); border-color: var(--primary); color: var(--text-main);">
+              📥 Cargar Lista Básica (15 productos)
             </button>
-          ` : ''}
-          <button class="btn btn-primary btn-sm" onclick="openMarketModal()">+ Agregar Producto</button>
+          ` : `
+            <button class="btn btn-secondary btn-sm" onclick="loadSuggestedMarketItems()" title="Añadir sugeridos de la despensa">
+              + Sugeridos
+            </button>
+          `}
         </div>
       </div>
 
-      <!-- ⚡ QUICK ADD BANNER: Añadir a Gastos en 1 Clic (Sin llenar formularios largos) -->
+      <!-- 2. Live Cart & Budget Unified Control Center (Mobile-First Top Center) -->
       ${items.length > 0 ? `
-        <div class="market-quick-banner">
-          <div>
-            <div class="market-quick-banner-title">
-              💳 Registrar Mercado en Gastos (Sin formularios)
+        <div class="market-live-cart-card">
+          <!-- Top Stats: Cart Spent vs Budget -->
+          <div class="market-cart-stats-grid">
+            <div class="market-cart-stat-box primary">
+              <span class="market-stat-lbl">🛒 En Carrito</span>
+              <div class="market-stat-val ${currentCartTotal > 0 ? 'active' : ''}">
+                ${formatCurrency(currentCartTotal)}
+              </div>
+              <span class="market-stat-sub">
+                ${checkedItems.length} de ${items.length} productos
+              </span>
             </div>
-            <div class="market-quick-banner-amount">
-              ${formatCurrency(finalPurchaseAmount)}
-              <span class="market-quick-banner-sub">
-                ${checkedItems.length > 0 ? `(${checkedItems.length} producto(s) marcados en carrito)` : `(Total de los ${items.length} productos de la lista)`}
+
+            <div class="market-cart-stat-box">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span class="market-stat-lbl">🎯 Presupuesto</span>
+                <button type="button" class="btn-budget-edit" onclick="openCategoryBudgetsModal('Mercado')" title="Modificar presupuesto de mercado">✏️</button>
+              </div>
+              <div class="market-stat-val budget">
+                ${budget > 0 ? formatCurrency(budget) : 'Sin límite'}
+              </div>
+              <span class="market-stat-sub ${cartPercent > 100 ? 'text-danger' : 'text-income'}">
+                ${budget > 0 ? `Disp: ${formatCurrency(availableMarketBudget)}` : 'Toca ✏️ para fijar límite'}
               </span>
             </div>
           </div>
-          <div class="market-quick-banner-actions">
-            <button 
-              type="button" 
-              class="btn btn-primary" 
-              onclick="quickAddMarketToExpenses('person_a')" 
-              style="padding: 0.65rem 1.1rem; font-weight: 700; font-size: 0.9rem;"
-              title="Añadir a gastos compartidos: Pagó Fran"
-            >
-              👨🏻 Pagó Fran ➔ Añadir a Gastos
-            </button>
-            <button 
-              type="button" 
-              class="btn btn-secondary" 
-              onclick="quickAddMarketToExpenses('person_b')" 
-              style="padding: 0.65rem 1.1rem; font-weight: 700; font-size: 0.9rem; background: rgba(139, 92, 246, 0.25); border: 1px solid var(--secondary); color: #ffffff;"
-              title="Añadir a gastos compartidos: Pagó Yox"
-            >
-              👩🏻 Pagó Yox ➔ Añadir a Gastos
-            </button>
-            <button 
-              type="button" 
-              class="btn btn-secondary btn-sm" 
-              onclick="openMarketToExpenseModal()" 
-              style="padding: 0.65rem 0.8rem; font-size: 0.8rem;"
-              title="Ajustar monto si la factura o tirilla física tuvo otro valor exacto"
-            >
-              ⚙️ Ajustar detalle
-            </button>
+
+          ${budget > 0 ? `
+            <div class="market-budget-bar-wrap">
+              <div class="progress-bar-container" style="height: 7px;">
+                <div class="progress-bar-fill ${cartPercent > 100 ? 'danger' : cartPercent > 80 ? 'warning' : 'success'}" style="width: ${Math.min(100, cartPercent)}%;"></div>
+              </div>
+              <div class="market-budget-bar-labels">
+                <span>${Math.round(cartPercent)}% consumido</span>
+                <span>${formatCurrency(currentCartTotal)} de ${formatCurrency(budget)}</span>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Quick 1-Click Pass to Expenses -->
+          <div class="market-expense-quick-box">
+            <div class="market-expense-quick-title">
+              <span>💳 Pasar Mercado a Gastos</span>
+              <span class="market-expense-quick-amount">
+                ${formatCurrency(finalPurchaseAmount)}
+              </span>
+            </div>
+
+            <div class="market-payer-buttons">
+              <button 
+                type="button" 
+                class="btn-payer-choice fran" 
+                onclick="quickAddMarketToExpenses('person_a')"
+                title="Cargar a gastos: Pagó Fran"
+              >
+                <span class="payer-avatar">👨🏻</span>
+                <div class="payer-info">
+                  <span class="payer-name">Pagó Fran</span>
+                  <span class="payer-sub">1-Clic a Gastos</span>
+                </div>
+              </button>
+
+              <button 
+                type="button" 
+                class="btn-payer-choice yox" 
+                onclick="quickAddMarketToExpenses('person_b')"
+                title="Cargar a gastos: Pagó Yox"
+              >
+                <span class="payer-avatar">👩🏻</span>
+                <div class="payer-info">
+                  <span class="payer-name">Pagó Yox</span>
+                  <span class="payer-sub">1-Clic a Gastos</span>
+                </div>
+              </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 0.55rem;">
+              <button 
+                type="button" 
+                class="market-link-btn" 
+                onclick="openMarketToExpenseModal()"
+                title="Ajustar monto si la factura física tuvo otro valor"
+              >
+                ⚙️ ¿Otro valor en caja? Ajustar tirilla física manual
+              </button>
+            </div>
           </div>
         </div>
       ` : ''}
 
-      <div class="market-container">
-        <!-- Left: Smart Checklist -->
-        <div class="glass-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <h3 style="font-size: 1.1rem; margin: 0;">🛒 Lista de Compras</h3>
-              <span class="badge ${checkedItems.length > 0 ? 'badge-success' : 'badge-purple'}" style="font-size: 0.75rem;">
-                ${checkedItems.length}/${items.length} en carrito
-              </span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <span style="font-size: 0.8rem; color: var(--text-muted);">
-                Total lista: <strong style="color: var(--text-main);">${formatCurrency(allItemsTotal)}</strong>
-              </span>
-              ${items.length > 0 ? `
-                <button type="button" class="btn btn-secondary btn-sm" onclick="loadSuggestedMarketItems()" style="padding: 3px 8px; font-size: 0.7rem;" title="Añadir más productos sugeridos">
-                  + Sugeridos
-                </button>
-              ` : ''}
-            </div>
+      <!-- 3. Smart Checklist Container with Mobile Filters -->
+      ${items.length === 0 ? `
+        <div class="glass-card" style="text-align: center; padding: 2.5rem 1.25rem;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🛒</div>
+          <h3 style="color: var(--text-main); margin-bottom: 0.5rem; font-size: 1.2rem;">Tu lista de mercado está vacía</h3>
+          <p style="font-size: 0.85rem; max-width: 420px; margin: 0 auto 1.5rem; line-height: 1.45; color: var(--text-muted);">
+            Carga la lista básica de la despensa en un clic con los productos más comunes del hogar (Huevos, Pollo, Arroz, Leche, etc.) o añade productos manualmente.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 0.65rem; max-width: 320px; margin: 0 auto;">
+            <button class="btn btn-primary" onclick="loadSuggestedMarketItems()" style="font-weight: 700; padding: 0.75rem;">
+              📥 Cargar Lista Básica (15 productos)
+            </button>
+            <button class="btn btn-secondary" onclick="openMarketModal()" style="padding: 0.75rem;">
+              + Agregar Producto Manualmente
+            </button>
+          </div>
+        </div>
+      ` : `
+        <div>
+          <!-- Segmented Filter Pills -->
+          <div class="market-filters-bar">
+            <button 
+              type="button" 
+              class="market-filter-pill ${currentMarketFilter === 'all' ? 'active' : ''}" 
+              onclick="setMarketFilter('all')"
+            >
+              Todos (${items.length})
+            </button>
+            <button 
+              type="button" 
+              class="market-filter-pill ${currentMarketFilter === 'pending' ? 'active' : ''}" 
+              onclick="setMarketFilter('pending')"
+            >
+              Pendientes (${pendingItems.length})
+            </button>
+            <button 
+              type="button" 
+              class="market-filter-pill ${currentMarketFilter === 'checked' ? 'active' : ''}" 
+              onclick="setMarketFilter('checked')"
+            >
+              En Carrito (${checkedItems.length})
+            </button>
           </div>
 
-          ${items.length === 0 ? `
-            <div style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted); background: var(--bg-glass); border-radius: var(--radius-md); border: 1px dashed var(--border-glass);">
-              <div style="font-size: 3rem; margin-bottom: 0.5rem;">🛒</div>
-              <h4 style="color: var(--text-main); margin-bottom: 0.5rem; font-size: 1.15rem;">Tu lista de mercado aún no tiene productos</h4>
-              <p style="font-size: 0.875rem; max-width: 460px; margin: 0 auto 1.25rem; line-height: 1.45;">
-                Carga la lista básica de la despensa en un clic para tener los productos más comunes del hogar (Huevos, Pollo, Arroz, Leche, etc.) con precios que puedes editar con el botón <strong>✏️ Editar</strong>.
-              </p>
-              <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="loadSuggestedMarketItems()" style="font-weight: 700; padding: 0.65rem 1.25rem;">
-                  📥 Cargar Lista Básica del Hogar (15 productos)
-                </button>
-                <button class="btn btn-secondary" onclick="openMarketModal()">
-                  + Agregar Producto Manualmente
-                </button>
+          <!-- Product Cards List -->
+          ${displayedItems.length === 0 ? `
+            <div class="glass-card" style="text-align: center; padding: 2rem 1rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+              <div style="font-size: 2rem; margin-bottom: 0.35rem;">
+                ${currentMarketFilter === 'checked' ? '🛒' : '🎉'}
               </div>
+              <p style="font-weight: 600; color: var(--text-main); font-size: 0.95rem;">
+                ${currentMarketFilter === 'checked' 
+                  ? 'Aún no has marcado productos en el carrito' 
+                  : '¡Compraste todo lo de la lista!'}
+              </p>
+              <p style="font-size: 0.8rem; margin-top: 0.25rem;">
+                ${currentMarketFilter === 'checked' 
+                  ? 'Toca cualquier producto de la lista para agregarlo a tu carrito.' 
+                  : 'Pasa el total a gastos con los botones de arriba.'}
+              </p>
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm" 
+                onclick="setMarketFilter('all')" 
+                style="margin-top: 0.85rem;"
+              >
+                Ver todos los productos
+              </button>
             </div>
           ` : `
             <div class="market-items-list">
-              ${items.map(item => `
-                <div class="market-item-row ${item.checked ? 'completed' : ''}" id="market-item-${item.id}">
-                  <!-- Checkbox & Product Name -->
-                  <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0; flex: 1;">
-                    <input 
-                      type="checkbox" 
-                      class="market-checkbox" 
-                      ${item.checked ? 'checked' : ''} 
-                      onchange="toggleMarketItem('${item.id}')" 
-                      title="Marcar como puesto en el carrito"
+              ${displayedItems.map(item => `
+                <div class="market-item-card ${item.checked ? 'completed' : ''}" id="market-item-${item.id}">
+                  <!-- Row 1: Checkbox + Product Name + Price Badge -->
+                  <div class="market-item-row-top">
+                    <div 
+                      class="market-item-clickable-area" 
+                      onclick="toggleMarketItem('${item.id}')" 
+                      title="${item.checked ? 'Desmarcar del carrito' : 'Marcar como puesto en el carrito'}"
                     >
-                    <div style="min-width: 0; flex: 1;">
-                      <div class="market-item-name" style="font-weight: 600; font-size: 0.95rem; word-break: break-word;">${item.name}</div>
-                      <span style="font-size: 0.75rem; color: var(--text-muted);">${item.category || 'Varios'}</span>
+                      <div class="market-check-wrapper">
+                        <input 
+                          type="checkbox" 
+                          class="market-checkbox" 
+                          ${item.checked ? 'checked' : ''} 
+                          id="chk-${item.id}"
+                          onclick="event.stopPropagation(); toggleMarketItem('${item.id}');"
+                        >
+                        <span class="market-check-custom">${item.checked ? '✓' : ''}</span>
+                      </div>
+
+                      <div class="market-item-text-wrap">
+                        <div class="market-item-name">${item.name}</div>
+                      </div>
+                    </div>
+
+                    <!-- Price Badge (Tap to Edit) -->
+                    <div 
+                      class="market-item-price-pill" 
+                      onclick="openMarketModal('${item.id}')" 
+                      title="Toca para cambiar el precio de ${item.name}"
+                    >
+                      <span>${formatCurrency(item.price)}</span>
+                      <span class="price-edit-pen">✏️</span>
                     </div>
                   </div>
 
-                  <!-- Price & Explicit Action Buttons -->
-                  <div style="display: flex; align-items: center; gap: 0.65rem; margin-left: 0.5rem; flex-shrink: 0;">
-                    <!-- Clickable Price Badge -->
-                    <button 
-                      type="button" 
-                      class="market-price-badge" 
-                      onclick="openMarketModal('${item.id}')" 
-                      title="Clic para cambiar el precio de ${item.name}"
-                    >
-                      <span>${formatCurrency(item.price)}</span>
-                      <span style="font-size: 0.75rem; color: var(--primary);">✏️</span>
-                    </button>
+                  <!-- Row 2: Category Pill + Action Buttons -->
+                  <div class="market-item-row-bottom">
+                    <div class="market-item-category-tag">
+                      <span>${getMarketCategoryIcon(item.category)}</span>
+                      <span>${item.category || 'Varios'}</span>
+                      ${item.checked ? '<span class="status-indicator">· En carrito</span>' : ''}
+                    </div>
 
-                    <!-- Explicit Edit Button with Text & Icon -->
-                    <div style="display: flex; gap: 0.35rem;">
+                    <div class="market-item-actions">
                       <button 
-                        type="button"
-                        class="btn btn-secondary btn-sm" 
+                        type="button" 
+                        class="btn-item-action edit" 
                         onclick="openMarketModal('${item.id}')" 
-                        title="Modificar precio, nombre o categoría de ${item.name}" 
-                        style="padding: 4px 10px; font-size: 0.775rem; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;"
+                        title="Modificar precio, nombre o pasillo de ${item.name}"
                       >
                         <span>✏️</span>
                         <span>Editar</span>
                       </button>
                       <button 
-                        type="button"
-                        class="btn btn-secondary btn-sm" 
+                        type="button" 
+                        class="btn-item-action delete" 
                         onclick="deleteMarketItem('${item.id}')" 
-                        title="Eliminar ${item.name} de la lista" 
-                        style="padding: 4px 8px; font-size: 0.75rem; color: var(--expense-color);"
+                        title="Eliminar ${item.name} de la lista"
                       >
                         🗑️
                       </button>
@@ -192,86 +319,13 @@ function renderMarketModule(appState) {
               `).join('')}
             </div>
           `}
-        </div>
 
-        <!-- Right: Live Cart Budget Summary Widget & Quick Expense Triggers -->
-        <div class="glass-card" style="height: fit-content;">
-          <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">📊 Resumen del Carrito</h3>
-          
-          <div style="margin-bottom: 1.25rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-              <span>Presupuesto fijado:</span>
-              <div style="display: flex; align-items: center; gap: 0.35rem;">
-                <strong style="color: var(--text-main);">${budget > 0 ? formatCurrency(budget) : 'Sin límite fijado'}</strong>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="openCategoryBudgetsModal('Mercado')" title="Modificar presupuesto de mercado" style="padding: 1px 5px; font-size: 0.65rem;">✏️</button>
-              </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-              <span>Productos en carrito:</span>
-              <strong style="color: var(--text-main);">${checkedItems.length} de ${items.length}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">
-              <span>Total del carrito:</span>
-              <span style="color: var(--primary); font-size: 1.25rem;">${formatCurrency(currentCartTotal)}</span>
-            </div>
-
-            ${budget > 0 ? `
-              <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem;">
-                <span>Disponible restante:</span>
-                <span style="color: var(--income-color);">${formatCurrency(availableMarketBudget)}</span>
-              </div>
-
-              <div class="progress-bar-container">
-                <div class="progress-bar-fill ${cartPercent > 100 ? 'danger' : cartPercent > 80 ? 'warning' : 'success'}" style="width: ${Math.min(100, cartPercent)}%;"></div>
-              </div>
-            ` : ''}
-          </div>
-
-          <!-- Action: Pasar Compra a Gastos en 1 Clic -->
-          <div style="background: var(--bg-glass); border: 1px solid var(--border-accent); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
-            <div style="font-size: 0.875rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
-              <span>💳</span> Pasar este total a Gastos
-            </div>
-            <p style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 0.85rem; line-height: 1.35;">
-              Añade directamente los <strong>${formatCurrency(finalPurchaseAmount)}</strong> a los gastos compartidos sin tener que llenar formularios:
-            </p>
-            
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-              <button 
-                type="button"
-                class="btn btn-primary" 
-                style="width: 100%; padding: 0.65rem; font-size: 0.9rem; font-weight: 700; text-align: center;"
-                onclick="quickAddMarketToExpenses('person_a')"
-                ${items.length === 0 ? 'disabled' : ''}
-              >
-                👨🏻 Pagó Fran ➔ Añadir a Gastos
-              </button>
-              <button 
-                type="button"
-                class="btn btn-secondary" 
-                style="width: 100%; padding: 0.65rem; font-size: 0.9rem; font-weight: 700; text-align: center; background: rgba(139, 92, 246, 0.25); border: 1px solid var(--secondary); color: #fff;"
-                onclick="quickAddMarketToExpenses('person_b')"
-                ${items.length === 0 ? 'disabled' : ''}
-              >
-                👩🏻 Pagó Yox ➔ Añadir a Gastos
-              </button>
-              <button 
-                type="button"
-                class="btn btn-outline btn-sm" 
-                style="width: 100%; font-size: 0.75rem; margin-top: 0.25rem; text-align: center;"
-                onclick="openMarketToExpenseModal()"
-                ${items.length === 0 ? 'disabled' : ''}
-              >
-                ⚙️ Ajustar factura manual
-              </button>
-            </div>
-          </div>
-
-          <div style="background: rgba(255,255,255,0.03); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-            💡 <strong>Mercados múltiples:</strong> Pueden hacer varios mercados en el mes. Cada vez que vayan al super, marquen lo que compren, pasen el total a gastos con un clic y la lista se desmarcará para la siguiente visita. ¡Pueden editar los precios con <strong>✏️ Editar</strong> cada vez que cambien!
+          <!-- Mobile Shopping Pro-Tip -->
+          <div style="background: rgba(255,255,255,0.025); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); font-size: 0.78rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 2rem;">
+            💡 <strong>Tip de compras:</strong> Marca los productos a medida que los colocas en el carrito físico para ver el total acumulado en vivo. Al pagar en caja, toca <strong>Pagó Fran</strong> o <strong>Pagó Yox</strong> para añadirlo a los gastos compartidos en un solo paso.
           </div>
         </div>
-      </div>
+      `}
     </div>
   `;
 }
@@ -298,3 +352,4 @@ function toggleMarketItem(id) {
 function addMarketItemPrompt() {
   openMarketModal();
 }
+

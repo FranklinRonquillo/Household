@@ -24,6 +24,13 @@
   background: var(--bg-card-hover);
 }
 
+@media (max-width: 600px) {
+  .glass-card {
+    padding: 0.95rem;
+    border-radius: var(--radius-md);
+  }
+}
+
 .glass-card-header {
   display: flex;
   justify-content: space-between;
