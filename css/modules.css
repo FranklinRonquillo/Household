@@ -95,6 +95,69 @@
   cursor: pointer;
 }
 
+.market-price-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed var(--border-accent);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.market-price-badge:hover {
+  background: rgba(var(--primary-rgb, 236, 72, 153), 0.15);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.market-quick-banner {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(168, 85, 247, 0.12));
+  border: 1px solid var(--border-accent);
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.market-quick-banner-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.market-quick-banner-amount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.market-quick-banner-sub {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.market-quick-banner-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 /* Memories Photo Album Grid */
 .memories-grid {
   display: grid;

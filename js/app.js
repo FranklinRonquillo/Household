@@ -581,7 +581,7 @@ function openMarketModal(itemId = null) {
     const items = state.get().market?.items || [];
     const item = items.find(i => String(i.id) === String(itemId));
     if (item) {
-      if (titleEl) titleEl.textContent = '✏️ Modificar Producto del Mercado';
+      if (titleEl) titleEl.textContent = `✏️ Modificar Precio: ${item.name}`;
       if (idInput) idInput.value = item.id;
       if (nameInput) nameInput.value = item.name;
       if (priceInput) priceInput.value = item.price;
@@ -599,6 +599,11 @@ function openMarketModal(itemId = null) {
   }
 
   modal.classList.add('active');
+  if (itemId && priceInput) {
+    setTimeout(() => { priceInput.focus(); priceInput.select(); }, 120);
+  } else if (nameInput) {
+    setTimeout(() => nameInput.focus(), 120);
+  }
 }
 
 function closeMarketModal() {
@@ -833,6 +838,139 @@ function handleMarketToExpenseSubmit(event) {
   closeMarketToExpenseModal();
 
   alert(`🎉 ¡Gasto de mercado registrado exitosamente por ${formatCurrency(monto)} en Gastos!`);
+}
+
+// 3c. Quick Add Market to Expenses (1-Click, Sin Formularios)
+function quickAddMarketToExpenses(payerId = 'person_a') {
+  const currentAppState = state.get();
+  const items = currentAppState.market?.items || [];
+
+  if (items.length === 0) {
+    alert('Tu lista de mercado está vacía. Carga la lista básica o agrega productos primero.');
+    return;
+  }
+
+  const checkedItems = items.filter(i => i.checked);
+  const cartTotal = checkedItems.reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+  const allTotal = items.reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+
+  const amount = cartTotal > 0 ? cartTotal : allTotal;
+  if (amount <= 0) {
+    alert('El monto del mercado debe ser mayor a $0. Configura los precios con el botón ✏️ Editar.');
+    return;
+  }
+
+  const payerName = payerId === 'person_a' ? 'Fran' : 'Yox';
+  const countLabel = checkedItems.length > 0 
+    ? `${checkedItems.length} producto(s) en carrito` 
+    : `toda la lista (${items.length} productos)`;
+  const descripcion = `Mercado del Hogar (${countLabel})`;
+
+  const today = (typeof formatDateToISO === 'function') 
+    ? formatDateToISO(new Date()) 
+    : new Date().toISOString().split('T')[0];
+  const expenseMonthKey = today.substring(0, 7);
+
+  const newExpense = {
+    id: Date.now(),
+    descripcion,
+    monto: amount,
+    categoria: 'Mercado',
+    pagado_por: payerId,
+    tipo_gasto: 'compartido',
+    fecha: today
+  };
+
+  // 1. Update State: add expense and uncheck items for the next market
+  state.set(current => {
+    const uncheckAll = (current.market?.items || []).map(i => ({ ...i, checked: false }));
+    return {
+      ...current,
+      selectedMonth: expenseMonthKey,
+      currentMonth: (typeof getMonthLabel === 'function') ? getMonthLabel(expenseMonthKey) : expenseMonthKey,
+      expenses: [newExpense, ...(current.expenses || [])],
+      market: {
+        ...current.market,
+        items: uncheckAll
+      }
+    };
+  });
+
+  // 2. Sync to Supabase in background
+  const sb = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sb) {
+    sb.from('expenses').insert([{
+      descripcion: newExpense.descripcion,
+      monto: newExpense.monto,
+      categoria: 'Mercado',
+      pagado_por: newExpense.pagado_por,
+      tipo_gasto: newExpense.tipo_gasto,
+      fecha: newExpense.fecha
+    }]).then(({ error }) => {
+      if (error) console.error('Error insertando gasto rápido de mercado en Supabase:', error);
+    });
+
+    sb.from('market_items').update({ checked: false }).neq('checked', false).then();
+  }
+
+  alert(`🎉 ¡Listo! Se añadió el mercado por ${formatCurrency(amount)} a los Gastos del Hogar.\n\n• Pagado por: ${payerName}\n• Cuota: Compartida proporcionalmente\n• Los productos se han desmarcado automáticamente para el próximo mercado.`);
+}
+
+// 3d. Cargar Lista Base de Despensa Sugerida (15 productos comunes)
+const SUGGESTED_MARKET_ITEMS = [
+  { name: 'Huevos AA x30', price: 18000, category: 'Lácteos' },
+  { name: 'Pechuga de Pollo 1kg', price: 18500, category: 'Carnes' },
+  { name: 'Carne Molida 500g', price: 14000, category: 'Carnes' },
+  { name: 'Arroz Diana 5kg', price: 22000, category: 'Despensa' },
+  { name: 'Aceite Vegetal 1L', price: 12000, category: 'Despensa' },
+  { name: 'Leche entera x6 bolsa', price: 21000, category: 'Lácteos' },
+  { name: 'Queso Tajado Colanta', price: 9500, category: 'Lácteos' },
+  { name: 'Pan Tajado', price: 7500, category: 'Despensa' },
+  { name: 'Café Sello Rojo 500g', price: 15000, category: 'Despensa' },
+  { name: 'Azúcar / Panela', price: 5500, category: 'Despensa' },
+  { name: 'Frutas y Verduras surtidas', price: 35000, category: 'Verduras' },
+  { name: 'Papel Higiénico x12', price: 18000, category: 'Aseo' },
+  { name: 'Detergente y Lavaplatos', price: 16000, category: 'Aseo' },
+  { name: 'Suavizante de Ropa', price: 11000, category: 'Aseo' },
+  { name: 'Galletas y Snacks', price: 8000, category: 'Despensa' }
+];
+
+function loadSuggestedMarketItems() {
+  const currentItems = state.get().market?.items || [];
+  if (currentItems.length > 0) {
+    if (!confirm('¿Deseas agregar los 15 productos sugeridos de la despensa a tu lista actual?')) {
+      return;
+    }
+  }
+
+  const baseTime = Date.now();
+  const newItems = SUGGESTED_MARKET_ITEMS.map((item, idx) => ({
+    id: baseTime + idx,
+    name: item.name,
+    price: item.price,
+    category: item.category,
+    checked: false
+  }));
+
+  state.set(current => ({
+    ...current,
+    market: {
+      ...current.market,
+      items: [...(current.market?.items || []), ...newItems]
+    }
+  }));
+
+  const sb = typeof getSupabase === 'function' ? getSupabase() : null;
+  if (sb) {
+    sb.from('market_items').insert(newItems.map(i => ({
+      name: i.name,
+      price: i.price,
+      category: i.category,
+      checked: false
+    }))).then(({ error }) => {
+      if (error) console.error('Error insertando productos base en Supabase:', error);
+    });
+  }
 }
 
 // 4. Savings Goal Modal Handlers (Add, Edit, Delete & Deposit)
