@@ -46,6 +46,7 @@ function initTheme() {
       if (typeof closeDebtModal === 'function') closeDebtModal();
       if (typeof closeMarketModal === 'function') closeMarketModal();
       if (typeof closeMarketToExpenseModal === 'function') closeMarketToExpenseModal();
+      if (typeof closeMarketSuccessModal === 'function') closeMarketSuccessModal();
       if (typeof closeSavingsModal === 'function') closeSavingsModal();
       if (typeof closeSavingsDepositModal === 'function') closeSavingsDepositModal();
       if (typeof closeMemoryModal === 'function') closeMemoryModal();
@@ -837,7 +838,14 @@ function handleMarketToExpenseSubmit(event) {
   form.reset();
   closeMarketToExpenseModal();
 
-  alert(`🎉 ¡Gasto de mercado registrado exitosamente por ${formatCurrency(monto)} en Gastos!`);
+  openMarketSuccessModal({
+    title: '¡Mercado Registrado en Gastos!',
+    subtitle: 'La compra se guardó en el historial mensual de gastos.',
+    amount: monto,
+    payerName: pagado_por === 'person_a' ? 'Fran' : 'Yox',
+    split: tipo_gasto === 'compartido' ? '🤝 Compartida proporcional' : `👤 Personal de ${pagado_por === 'person_a' ? 'Fran' : 'Yox'}`,
+    status: resetChecked ? '🔄 Productos comprados desmarcados' : '📋 Productos mantenidos marcados'
+  });
 }
 
 // 3c. Quick Add Market to Expenses (1-Click, Sin Formularios)
@@ -846,7 +854,15 @@ function quickAddMarketToExpenses(payerId = 'person_a') {
   const items = currentAppState.market?.items || [];
 
   if (items.length === 0) {
-    alert('Tu lista de mercado está vacía. Carga la lista básica o agrega productos primero.');
+    openMarketSuccessModal({
+      title: 'Lista de mercado vacía',
+      subtitle: 'Primero carga la lista básica o agrega productos a la despensa.',
+      amount: 0,
+      payerName: 'Sin asignar',
+      split: 'Sin productos',
+      status: '⚠️ Agrega productos primero',
+      icon: '🛒'
+    });
     return;
   }
 
@@ -856,7 +872,15 @@ function quickAddMarketToExpenses(payerId = 'person_a') {
 
   const amount = cartTotal > 0 ? cartTotal : allTotal;
   if (amount <= 0) {
-    alert('El monto del mercado debe ser mayor a $0. Configura los precios con el botón ✏️ Editar.');
+    openMarketSuccessModal({
+      title: 'Monto en $0',
+      subtitle: 'El monto debe ser mayor a $0. Configura los precios con ✏️ Editar.',
+      amount: 0,
+      payerName: 'Sin precio',
+      split: 'Precios vacíos',
+      status: '⚠️ Edita los precios primero',
+      icon: '✏️'
+    });
     return;
   }
 
@@ -913,7 +937,60 @@ function quickAddMarketToExpenses(payerId = 'person_a') {
     sb.from('market_items').update({ checked: false }).neq('checked', false).then();
   }
 
-  alert(`🎉 ¡Listo! Se añadió el mercado por ${formatCurrency(amount)} a los Gastos del Hogar.\n\n• Pagado por: ${payerName}\n• Cuota: Compartida proporcionalmente\n• Los productos se han desmarcado automáticamente para el próximo mercado.`);
+  // 3. Open Custom Success Modal (Replaces browser alert)
+  openMarketSuccessModal({
+    title: '¡Mercado Registrado en Gastos!',
+    subtitle: 'El valor se sumó automáticamente al presupuesto y gastos compartidos del mes.',
+    amount,
+    payerName,
+    split: '🤝 Compartida proporcionalmente',
+    status: checkedItems.length > 0 
+      ? `🔄 ${checkedItems.length} producto(s) desmarcados para el próximo mercado` 
+      : '🔄 Lista desmarcada para la próxima compra',
+    icon: '🎉'
+  });
+}
+
+// 3c-ii. Market Expense Success Modal Handlers
+function openMarketSuccessModal({
+  title = '¡Mercado Registrado en Gastos!',
+  subtitle = 'El valor se sumó automáticamente al presupuesto y gastos compartidos del mes.',
+  amount = 0,
+  payerName = 'Fran',
+  split = '🤝 Compartida proporcional',
+  status = '🔄 Productos desmarcados',
+  icon = '🎉'
+} = {}) {
+  const modal = document.getElementById('modal-market-success');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('modal-market-success-title');
+  const subtitleEl = document.getElementById('modal-market-success-subtitle');
+  const amountEl = document.getElementById('modal-market-success-amount');
+  const payerEl = document.getElementById('modal-market-success-payer');
+  const splitEl = document.getElementById('modal-market-success-split');
+  const statusEl = document.getElementById('modal-market-success-status');
+  const iconEl = document.getElementById('modal-market-success-icon');
+
+  if (titleEl) titleEl.textContent = title;
+  if (subtitleEl) subtitleEl.textContent = subtitle;
+  if (amountEl) amountEl.textContent = (typeof formatCurrency === 'function') ? formatCurrency(amount) : `$ ${amount}`;
+  if (payerEl) payerEl.textContent = payerName;
+  if (splitEl) splitEl.textContent = split;
+  if (statusEl) statusEl.textContent = status;
+  if (iconEl) iconEl.textContent = icon;
+
+  modal.classList.add('active');
+}
+
+function closeMarketSuccessModal() {
+  const modal = document.getElementById('modal-market-success');
+  if (modal) modal.classList.remove('active');
+}
+
+function viewMarketExpenseInTab() {
+  closeMarketSuccessModal();
+  state.set(current => ({ ...current, activeTab: 'gastos' }));
 }
 
 // 3d. Cargar Lista Base de Despensa Sugerida (15 productos comunes)

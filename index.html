@@ -391,6 +391,51 @@
     </div>
   </div>
 
+  <!-- 3c. Market Expense Success Modal (Replaces browser alert) -->
+  <div class="modal-overlay" id="modal-market-success" onclick="if(event.target === this) closeMarketSuccessModal()">
+    <div class="modal-container" style="max-width: 400px; text-align: center; padding: 1.5rem 1.25rem;">
+      <div class="market-success-badge-wrap">
+        <div class="market-success-badge" id="modal-market-success-icon">🎉</div>
+      </div>
+      
+      <h3 id="modal-market-success-title" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-main);">
+        ¡Mercado Registrado en Gastos!
+      </h3>
+      <p id="modal-market-success-subtitle" style="font-size: 0.825rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
+        El valor se sumó automáticamente al presupuesto y gastos compartidos del mes.
+      </p>
+
+      <div class="market-success-card">
+        <div class="market-success-amount" id="modal-market-success-amount">
+          $ 0
+        </div>
+        <div class="market-success-details">
+          <div class="market-success-row">
+            <span class="lbl">Pagado por:</span>
+            <strong class="val" id="modal-market-success-payer">Fran</strong>
+          </div>
+          <div class="market-success-row">
+            <span class="lbl">Cuota:</span>
+            <span class="val" id="modal-market-success-split">🤝 Compartida proporcional</span>
+          </div>
+          <div class="market-success-row">
+            <span class="lbl">Lista del súper:</span>
+            <span class="val" style="color: var(--income-color);" id="modal-market-success-status">🔄 Productos desmarcados</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem;">
+        <button type="button" class="btn btn-primary" onclick="closeMarketSuccessModal()" style="width: 100%; padding: 0.75rem; font-weight: 700; font-size: 0.95rem;">
+          Aceptar
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="viewMarketExpenseInTab()" style="width: 100%; padding: 0.6rem; font-size: 0.825rem;">
+          👀 Ver en Gastos y Deudas
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 4. Add / Edit Savings Goal Modal -->
   <div class="modal-overlay" id="modal-savings" onclick="if(event.target === this) closeSavingsModal()">
     <div class="modal-container">

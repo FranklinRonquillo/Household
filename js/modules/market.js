@@ -145,10 +145,16 @@ function renderMarketModule(appState) {
                 onclick="quickAddMarketToExpenses('person_a')"
                 title="Cargar a gastos: Pagó Fran"
               >
-                <span class="payer-avatar">👨🏻</span>
-                <div class="payer-info">
-                  <span class="payer-name">Pagó Fran</span>
-                  <span class="payer-sub">1-Clic a Gastos</span>
+                <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                  <span class="payer-avatar">👨🏻</span>
+                  <div class="payer-info">
+                    <span class="payer-name">Pagó Fran</span>
+                    <span class="payer-sub">Registrar compra a gastos compartidos</span>
+                  </div>
+                </div>
+                <div class="payer-action-badge">
+                  <span>1-Clic</span>
+                  <span>➔</span>
                 </div>
               </button>
 
@@ -158,10 +164,16 @@ function renderMarketModule(appState) {
                 onclick="quickAddMarketToExpenses('person_b')"
                 title="Cargar a gastos: Pagó Yox"
               >
-                <span class="payer-avatar">👩🏻</span>
-                <div class="payer-info">
-                  <span class="payer-name">Pagó Yox</span>
-                  <span class="payer-sub">1-Clic a Gastos</span>
+                <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                  <span class="payer-avatar">👩🏻</span>
+                  <div class="payer-info">
+                    <span class="payer-name">Pagó Yox</span>
+                    <span class="payer-sub">Registrar compra a gastos compartidos</span>
+                  </div>
+                </div>
+                <div class="payer-action-badge">
+                  <span>1-Clic</span>
+                  <span>➔</span>
                 </div>
               </button>
             </div>
