@@ -176,36 +176,45 @@ class StateManager {
     if (!sb) return;
 
     try {
-      // 1. Fetch expenses (order by date descending)
-      const { data: expenses } = await sb.from('expenses').select('*').order('fecha', { ascending: false });
-      // 2. Fetch debts
-      const { data: debts } = await sb.from('debts').select('*').order('id', { ascending: false });
-      // 3. Fetch savings_goals
-      const { data: savings } = await sb.from('savings_goals').select('*').order('id', { ascending: true });
-      // 4. Fetch market_items
-      const { data: marketItems } = await sb.from('market_items').select('*').order('id', { ascending: true });
-      // 5. Fetch memories
-      const { data: memories } = await sb.from('memories').select('*').order('id', { ascending: false });
+      // Parallel fetch for ultra-fast load (all 6 queries run concurrently in 1 roundtrip)
+      const [
+        { data: expenses },
+        { data: debts },
+        { data: savings },
+        { data: marketItems },
+        { data: memories },
+        { data: settingsList }
+      ] = await Promise.all([
+        sb.from('expenses').select('*').order('fecha', { ascending: false }),
+        sb.from('debts').select('*').order('id', { ascending: false }),
+        sb.from('savings_goals').select('*').order('id', { ascending: true }),
+        sb.from('market_items').select('*').order('id', { ascending: true }),
+        sb.from('memories').select('*').order('id', { ascending: false }),
+        sb.from('household_settings').select('*')
+      ]);
 
-      // 6. Fetch custom settings (incomes, category_budgets, couple_quote, calendar_payments, life_goals)
+      // Extract custom settings from single household_settings query
       let customIncomes = null;
       let customBudgets = null;
       let customQuote = null;
       let customCalendar = null;
       let customLifeGoals = null;
-      try {
-        const { data: incSettings } = await sb.from('household_settings').select('*').eq('id', 'incomes').maybeSingle();
+
+      if (Array.isArray(settingsList)) {
+        const incSettings = settingsList.find(s => s.id === 'incomes');
         if (incSettings && incSettings.data) customIncomes = incSettings.data;
-        const { data: bSettings } = await sb.from('household_settings').select('*').eq('id', 'category_budgets').maybeSingle();
+
+        const bSettings = settingsList.find(s => s.id === 'category_budgets');
         if (bSettings && bSettings.data) customBudgets = bSettings.data;
-        const { data: qSettings } = await sb.from('household_settings').select('*').eq('id', 'couple_quote').maybeSingle();
+
+        const qSettings = settingsList.find(s => s.id === 'couple_quote');
         if (qSettings && qSettings.data && qSettings.data.quote) customQuote = qSettings.data.quote;
-        const { data: calSettings } = await sb.from('household_settings').select('*').eq('id', 'calendar_payments').maybeSingle();
+
+        const calSettings = settingsList.find(s => s.id === 'calendar_payments');
         if (calSettings && calSettings.data && Array.isArray(calSettings.data.payments)) customCalendar = calSettings.data.payments;
-        const { data: lifeSettings } = await sb.from('household_settings').select('*').eq('id', 'life_goals').maybeSingle();
+
+        const lifeSettings = settingsList.find(s => s.id === 'life_goals');
         if (lifeSettings && lifeSettings.data && Array.isArray(lifeSettings.data.goals)) customLifeGoals = lifeSettings.data.goals;
-      } catch (e) {
-        // Table may not exist yet, fallback to state
       }
 
       this.set(current => ({

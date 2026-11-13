@@ -123,9 +123,15 @@ function closeThemeModal() {
   }
 }
 
+let _lastRenderedTab = null;
+
 function renderApp(appState) {
   const container = document.getElementById('main-view-container');
   if (!container) return;
+
+  const prevScrollY = window.scrollY;
+  const isTabSwitch = _lastRenderedTab !== appState.activeTab;
+  _lastRenderedTab = appState.activeTab;
 
   // Dynamic Header Month Sync
   const currentRealKey = (typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10';
@@ -164,24 +170,33 @@ function renderApp(appState) {
   updateActiveNavStyles(appState.activeTab);
 
   // Render appropriate view module (5 unified views)
+  let newHtml = '';
   switch (appState.activeTab) {
     case 'dashboard':
-      container.innerHTML = renderDashboardModule(appState);
+      newHtml = renderDashboardModule(appState);
       break;
     case 'gastos':
-      container.innerHTML = renderExpensesModule(appState);
+      newHtml = renderExpensesModule(appState);
       break;
     case 'mercado':
-      container.innerHTML = renderMarketModule(appState);
+      newHtml = renderMarketModule(appState);
       break;
     case 'ahorros':
-      container.innerHTML = renderSavingsModule(appState);
+      newHtml = renderSavingsModule(appState);
       break;
     case 'memorias':
-      container.innerHTML = renderMemoriesModule(appState);
+      newHtml = renderMemoriesModule(appState);
       break;
     default:
-      container.innerHTML = renderDashboardModule(appState);
+      newHtml = renderDashboardModule(appState);
+  }
+
+  if (container.innerHTML !== newHtml) {
+    container.innerHTML = newHtml;
+    // If updating data within the same tab, restore scroll seamlessly without jump
+    if (!isTabSwitch && prevScrollY > 0) {
+      window.scrollTo(0, prevScrollY);
+    }
   }
 }
 

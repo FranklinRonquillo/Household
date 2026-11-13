@@ -2,8 +2,6 @@
    HOUSEHOLD - Design System & Theme Variables (Unisex Premium Palette)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 :root, [data-theme="dark"] {
   /* Dark Mode Unisex Palette - Slate Navy & Electric Teal / Indigo */
   --bg-dark: #0b1329;
@@ -414,6 +412,15 @@
   padding: 0;
 }
 
+html {
+  background-color: var(--bg-dark);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-dark);
@@ -421,16 +428,30 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+}
+
+/* GPU-Accelerated Fixed Background (Prevents scroll repaint lag & blank screen) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
   background-image: 
     radial-gradient(circle at 10% 20%, var(--grad-1) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, var(--grad-2) 0%, transparent 40%),
     radial-gradient(circle at 50% 50%, var(--grad-3) 0%, transparent 60%);
-  background-attachment: fixed;
-  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
-.sidebar, .glass-card, .stat-widget, .modal-container, .mobile-nav, .top-header, .form-input, .form-select {
-  transition: background var(--transition-smooth), background-color var(--transition-smooth), border-color var(--transition-smooth), color var(--transition-smooth);
+.sidebar, .stat-widget, .modal-container, .mobile-nav, .top-header, .form-input, .form-select {
+  transition: background-color var(--transition-smooth), border-color var(--transition-smooth), color var(--transition-smooth);
 }
 
 /* Typography elements */
@@ -468,12 +489,12 @@ button, input, select, textarea {
   background: var(--primary);
 }
 
-/* Utility Animations */
+/* Utility Animations (Non-blocking, zero-blank subtle fade) */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0.85; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in {
-  animation: fadeIn var(--transition-smooth) forwards;
+  animation: fadeIn 0.15s ease-out forwards;
 }
