@@ -123,15 +123,31 @@ function closeThemeModal() {
   }
 }
 
+const VIEW_IDS = {
+  dashboard: 'view-dashboard',
+  gastos: 'view-gastos',
+  mercado: 'view-mercado',
+  ahorros: 'view-ahorros',
+  memorias: 'view-memorias'
+};
+
+const VIEW_RENDERERS = {
+  dashboard: renderDashboardModule,
+  gastos: renderExpensesModule,
+  mercado: renderMarketModule,
+  ahorros: renderSavingsModule,
+  memorias: renderMemoriesModule
+};
+
+// Cached HTML per view to avoid DOM reflows when data hasn't changed
+const _viewHtmlCache = {};
 let _lastRenderedTab = null;
 
 function renderApp(appState) {
   const container = document.getElementById('main-view-container');
   if (!container) return;
 
-  const prevScrollY = window.scrollY;
-  const isTabSwitch = _lastRenderedTab !== appState.activeTab;
-  _lastRenderedTab = appState.activeTab;
+  const activeTab = appState.activeTab || 'dashboard';
 
   // Dynamic Header Month Sync
   const currentRealKey = (typeof getCurrentMonthKey === 'function') ? getCurrentMonthKey() : '2026-10';
@@ -163,41 +179,37 @@ function renderApp(appState) {
   // Show "+ Nuevo Gasto" button ONLY in the 'gastos' tab
   const topAddBtn = document.getElementById('top-add-expense-btn');
   if (topAddBtn) {
-    topAddBtn.style.display = appState.activeTab === 'gastos' ? 'inline-flex' : 'none';
+    topAddBtn.style.display = activeTab === 'gastos' ? 'inline-flex' : 'none';
   }
 
   // Update navigation visual selection
-  updateActiveNavStyles(appState.activeTab);
+  updateActiveNavStyles(activeTab);
 
-  // Render appropriate view module (5 unified views)
-  let newHtml = '';
-  switch (appState.activeTab) {
-    case 'dashboard':
-      newHtml = renderDashboardModule(appState);
-      break;
-    case 'gastos':
-      newHtml = renderExpensesModule(appState);
-      break;
-    case 'mercado':
-      newHtml = renderMarketModule(appState);
-      break;
-    case 'ahorros':
-      newHtml = renderSavingsModule(appState);
-      break;
-    case 'memorias':
-      newHtml = renderMemoriesModule(appState);
-      break;
-    default:
-      newHtml = renderDashboardModule(appState);
-  }
+  // 1. Instant View Visibility Toggle (0ms tab switching!)
+  Object.keys(VIEW_IDS).forEach(tabKey => {
+    const el = document.getElementById(VIEW_IDS[tabKey]);
+    if (el) {
+      el.style.display = (tabKey === activeTab) ? 'block' : 'none';
+    }
+  });
 
-  if (container.innerHTML !== newHtml) {
-    container.innerHTML = newHtml;
-    // If updating data within the same tab, restore scroll seamlessly without jump
-    if (!isTabSwitch && prevScrollY > 0) {
-      window.scrollTo(0, prevScrollY);
+  // 2. Render active view if content changed
+  const activeContainer = document.getElementById(VIEW_IDS[activeTab]);
+  if (activeContainer && VIEW_RENDERERS[activeTab]) {
+    const newHtml = VIEW_RENDERERS[activeTab](appState);
+    if (_viewHtmlCache[activeTab] !== newHtml) {
+      _viewHtmlCache[activeTab] = newHtml;
+      activeContainer.innerHTML = newHtml;
+    }
+  } else if (VIEW_RENDERERS[activeTab]) {
+    // Fallback if individual view divs aren't found
+    const newHtml = VIEW_RENDERERS[activeTab](appState);
+    if (container.innerHTML !== newHtml) {
+      container.innerHTML = newHtml;
     }
   }
+
+  _lastRenderedTab = activeTab;
 }
 
 // Time Travel & Month History Navigation Handlers
