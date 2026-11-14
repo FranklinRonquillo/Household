@@ -168,7 +168,8 @@ class StateManager {
   }
 
   notify() {
-    this.listeners.forEach(listener => listener(this.data));
+    const computedState = this.get();
+    this.listeners.forEach(listener => listener(computedState));
   }
 
   async syncWithSupabase() {
